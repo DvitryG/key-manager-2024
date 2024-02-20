@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standart]
+sqlalchemy
+aiosqlite
+alembic
