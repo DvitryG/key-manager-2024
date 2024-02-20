@@ -2,9 +2,9 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import "./style.css";
+import "../style.css";
 
-const Registeration = () => {
+const Registration = () => {
   return (
     <Container className="mt-3">
       <Form className="reg">
@@ -37,4 +37,4 @@ const Registeration = () => {
   );
 };
 
-export default Registeration;
+export default Registration;

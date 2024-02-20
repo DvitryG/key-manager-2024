@@ -3,7 +3,6 @@ import "../index.css";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import LoginPage from '../Pages/LoginPage';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
