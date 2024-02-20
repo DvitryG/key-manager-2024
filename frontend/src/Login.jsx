@@ -2,29 +2,31 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import "./style.css";
 
 const Login = () => {
   return (
     <Container className="mt-3">
-      <Form>
+      <Form className="login">
+      <h1 className="textTitle">Вход</h1>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
+          <h6 className="textTitle">Email</h6>
+          <Form.Control type="email" placeholder="name@example.com" />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+          <h6 className="textTitle">Пароль</h6>
+
           <Form.Control type="password" placeholder="Password" />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Submit
+        <div>
+        <Button className="logbtn" variant="secondary" type="submit">
+          Войти
         </Button>
+        <Button className="logbtn" variant="primary" type="submit">
+          Регистрация
+        </Button>
+        </div>
       </Form>
     </Container>
   );

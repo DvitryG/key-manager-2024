@@ -1,0 +1,23 @@
+.login {
+    width: 400px;
+    margin: auto;
+    background-color: #F6F6FB;
+    PADDING: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 5px #969696;
+    margin-top: 50px;
+}
+.login .logbtn {
+    display: block;
+    width: 100%;
+}
+.login .logbtn:first-of-type {
+    margin-bottom: 15px;
+    
+}
+
+.textTitle{
+    text-align: start;
+    margin-top: 10px;
+
+}
