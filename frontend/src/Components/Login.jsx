@@ -2,7 +2,7 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import "../style.css";
+import "./style.css";
 import { Link } from "react-router-dom";
 
 const Login = () => {
@@ -25,7 +25,7 @@ const Login = () => {
           Войти
         </Button>
         <Button className="logbtn" variant="primary" type="submit">
-           <Link to="/registration">Регистрация</Link> 
+           <Link to="/registration" className="text">Регистрация</Link> 
         </Button>
         </div>
       </Form>

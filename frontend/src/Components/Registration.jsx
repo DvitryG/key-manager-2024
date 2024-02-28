@@ -2,12 +2,12 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import "../style.css";
+import "./style.css";
 
 const Registration = () => {
   return (
     <Container className="mt-3">
-      <Form className="reg">
+      <Form className="login">
       <h1 className="textTitle">Регистрация</h1>
       <Form.Group className="mb-3" controlId="formBasicEmail">
           <h6 className="textTitle">ФИО</h6>

@@ -2,7 +2,7 @@
     width: 400px;
     margin: auto;
     background-color: #F6F6FB;
-    PADDING: 20px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 5px 5px #969696;
     margin-top: 50px;
@@ -19,5 +19,10 @@
 .textTitle{
     text-align: start;
     margin-top: 10px;
+
+}
+
+.login .logbtn .text{color: white;
+    text-decoration: none;
 
 }
