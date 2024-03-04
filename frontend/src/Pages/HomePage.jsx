@@ -1,9 +1,13 @@
 import React from 'react';
 
+
+
 const HomePage = () => {
+  
     return (
-        <div>
-            <div>It'll be homepage</div>
+        <div className='container'>
+           
+        ttatatta
         </div>
     );
 }
