@@ -1,21 +1,24 @@
 import React from 'react';
 import "../index.css";
+import "../App.css";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
+import '../Styles/index.css'
 
 const Header = () => {
     return (
-          <Navbar bg="dark" data-bs-theme="dark">
+      
+          <Navbar bg="navbar" data-bs-theme="dark">
             <Container>
               <Navbar.Brand>
                <Link to="/keys">Выданные ключи</Link>
                </Navbar.Brand>
               <Nav className="me-auto">
-                <Link to="/requests">Заявки</Link>
-                <Nav.Link href="#features">Пользователи</Nav.Link>
-                <Nav.Link href="#feature">Кабинеты</Nav.Link>
+                <Link to="/requests" className='me-2'>Заявки</Link>
+                <Link to="/list" className='me-2'>Пользователи</Link>
+                <Link href="#feature">Кабинеты</Link>
               </Nav>
               <Nav>
               <Nav>
