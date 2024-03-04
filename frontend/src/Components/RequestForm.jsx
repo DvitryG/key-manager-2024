@@ -1,5 +1,6 @@
 import React from 'react';
 import Input from './Input';
+import "../Styles/index.css";
 
 const RequestForm = () => {
     return (
@@ -13,7 +14,7 @@ const RequestForm = () => {
                 <Input title="Статус заявки" placeholder="Статус"></Input>
                 <Input title="Кабинет" placeholder="Номер кабинета"></Input>
             </div>
-            <div className='d-flex align-items-end mb-2'><button className='btn btn-success'>Искать</button></div>
+            <div className='d-flex align-items-end mb-2'><button className='btn btn-purple'>Искать</button></div>
         </div>
     </div>
     );
