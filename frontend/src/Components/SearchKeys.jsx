@@ -1,6 +1,7 @@
 import React from 'react';
 import Input from './Input';
 import "../Styles/index.css";
+import '../Styles/button.css';
 
 const SearchKeys = () => {
     return (
