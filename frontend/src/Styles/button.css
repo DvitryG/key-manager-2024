@@ -36,9 +36,10 @@
     padding: 5px 10px !important;
     background-color: rgb(135, 129, 228) !important;
     color: white !important;
+    width: 50% !important;
 }
 .btn-logbtn:hover {
-    box-shadow: #d0c9f2 0 0px 0px 40px inset;
+    box-shadow: #d0c9f2 0 0px 0px 40px inset  !important;
     color: rgb(95, 69, 131);
 }
 
