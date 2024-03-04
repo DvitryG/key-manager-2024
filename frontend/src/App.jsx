@@ -8,7 +8,7 @@ import HomePage from './Pages/HomePage';
 import RegistrationPage from './Pages/RegistrationPage';
 import RequestPage from './Pages/RequestPage';
 import {KeysPage}  from './Pages/KeysPage';
-
+import {UserListPage} from './Pages/UserListPage';
 
 
 function App() {
@@ -24,6 +24,7 @@ function App() {
         <Route path='/registration' element={<RegistrationPage />} />
         <Route path='/requests'  element={<RequestPage />}/>
         <Route path='/keys'  element={<KeysPage />}/>
+        <Route path='/list' element={<UserListPage />}/>
      </Routes>
      </>
   );
