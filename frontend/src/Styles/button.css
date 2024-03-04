@@ -1,0 +1,45 @@
+.btn-search{
+    padding: 6px 30px !important;
+    background-color: rgb(111, 103, 222) !important;
+    color: white !important;
+}
+.btn-search:hover {
+    box-shadow: #d0c9f2 0 0px 0px 40px inset;
+    color: rgb(95, 69, 131);
+ }
+
+.btn-good {
+    padding: 5px 20px !important;
+    background-color: white !important;
+    color: rgb(81, 114, 84) !important;
+    border: 2px solid #76c579 !important;
+    transition: .2s linear !important;
+    
+}
+
+.btn-good:hover {
+   box-shadow: #c9f1c0 0 0px 0px 40px inset;
+   color: rgb(81, 114, 84); 
+}
+
+.btn-done{
+    padding: 5px 10px !important;
+    background-color: rgb(94, 179, 111) !important;
+    color: white !important;
+}
+.btn-done:hover {
+    box-shadow: #428732 0 0px 0px 40px inset;
+    color: rgb(255, 255, 255);
+}
+
+.logbtn{
+    padding: 5px 10px !important;
+    background-color: rgb(135, 129, 228) !important;
+    color: white !important;
+    width: 50% !important;
+}
+.btn-logbtn:hover {
+    box-shadow: #d0c9f2 0 0px 0px 40px inset  !important;
+    color: rgb(95, 69, 131);
+}
+

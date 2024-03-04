@@ -2,6 +2,7 @@
   text-align: center;
 }
 
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -11,6 +12,7 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+  
 }
 
 .App-header {
@@ -35,4 +37,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+.btn-purple{
+  background-color: purple;
+  color: white;
+}
+a {
+  color:rgb(95, 69, 131) !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  text-decoration:none !important; 
+  cursor:pointer !important;  
+  color: rgb(162, 113, 229) !important; 
+}
+
+.btn-primary {
+  padding: 5px 40px !important;
+  background-color: white !important;
+  color:rgb(95, 69, 131) !important;
+  border: 2px solid #a576c5 !important;  
+  transition: .2s linear !important;  
+  text-decoration:none !important; 
+  cursor:pointer !important;  
+}
+
+.btn-secondary{
+  text-decoration:none !important; 
+}
+.btn:hover{
+  text-decoration:none !important; 
+
 }
