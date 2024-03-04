@@ -1,5 +1,7 @@
 import React from 'react';
 import "../Styles/index.css";
+import '../Styles/button.css';
+
 const CardComponent = ({ fullName, room, date, status }) => {
     return (
         <>
@@ -12,7 +14,7 @@ const CardComponent = ({ fullName, room, date, status }) => {
                 {status == 'good' ? (
                   <div className='btn btn-outline-danger'>Закрыть</div> )
                    : ( <>
-                  <div className='btn btn-success me-2'>Одобрить</div>
+                  <div className='btn btn-done me-2'>Одобрить</div>
                   <div className='btn btn-outline-danger'>Закрыть</div>
                   </> )
                   }
