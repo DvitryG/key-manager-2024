@@ -7,7 +7,7 @@ const RequestPage = () => {
     return (
         <div>
             <div className="request-header p-4 ps-5">
-                <h1>Список Заявок</h1>
+                <h1>Список заявок</h1>
             </div>
           <RequestForm />
           <div className="container d-flex justify-content-center flex-column w-75">

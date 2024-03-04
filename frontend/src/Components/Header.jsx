@@ -10,11 +10,12 @@ const Header = () => {
           <Navbar bg="dark" data-bs-theme="dark">
             <Container>
               <Navbar.Brand>
-               <Link to="/">Key</Link>
+               <Link to="/">Выданные ключи</Link>
                </Navbar.Brand>
               <Nav className="me-auto">
                 <Link to="/requests">Заявки</Link>
-                <Nav.Link href="#features">Ключи</Nav.Link>
+                <Nav.Link href="#features">Пользователи</Nav.Link>
+                <Nav.Link href="#feature">Кабинеты</Nav.Link>
               </Nav>
               <Nav>
               <Nav>
