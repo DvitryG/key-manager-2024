@@ -7,6 +7,7 @@ import LoginPage from './Pages/LoginPage';
 import HomePage from './Pages/HomePage';
 import RegistrationPage from './Pages/RegistrationPage';
 import RequestPage from './Pages/RequestPage';
+import {KeysPage}  from './Pages/KeysPage';
 
 
 
@@ -22,6 +23,7 @@ function App() {
         <Route path='/login' element={<LoginPage />} />
         <Route path='/registration' element={<RegistrationPage />} />
         <Route path='/requests'  element={<RequestPage />}/>
+        <Route path='/keys'  element={<KeysPage />}/>
      </Routes>
      </>
   );
