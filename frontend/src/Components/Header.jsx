@@ -10,7 +10,7 @@ const Header = () => {
           <Navbar bg="dark" data-bs-theme="dark">
             <Container>
               <Navbar.Brand>
-               <Link to="/">Выданные ключи</Link>
+               <Link to="/keys">Выданные ключи</Link>
                </Navbar.Brand>
               <Nav className="me-auto">
                 <Link to="/requests">Заявки</Link>

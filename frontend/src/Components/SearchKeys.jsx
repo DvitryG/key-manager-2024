@@ -2,17 +2,14 @@ import React from 'react';
 import Input from './Input';
 import "../Styles/index.css";
 
-
-const RequestForm = () => {
+const SearchKeys = () => {
     return (
         <div className='container d-flex justify-content-center'>
         <div className='request-form d-flex flex-row'>
             <div className="d-flex flex-column">
                 <Input title="Пользователь" placeholder="Введите имя"></Input>
-                <Input title="Дата" placeholder="Дата"></Input>
             </div>
             <div className='d-flex flex-column'>
-                <Input title="Статус заявки" placeholder="Статус"></Input>
                 <Input title="Кабинет" placeholder="Номер кабинета"></Input>
             </div>
             <div className='d-flex align-items-end mb-2'><button className='btn btn-search'>Искать</button></div>
@@ -21,4 +18,4 @@ const RequestForm = () => {
     );
 }
 
-export default RequestForm;
+export default SearchKeys;

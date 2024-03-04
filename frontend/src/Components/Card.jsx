@@ -8,7 +8,6 @@ const CardComponent = ({ fullName, room, date, status }) => {
                 <div className='mb-2 fw-semibold'>{fullName} </div>
                 <div>{room} + {date}</div>
             </div>
-            <div className='d-flex align-items-center'>Статус: {status}</div>
             <div className='d-flex flex-row p-2'>
                 {status == 'good' ? (
                   <div className='btn btn-outline-danger'>Закрыть</div> )

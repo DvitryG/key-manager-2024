@@ -1,8 +1,13 @@
 .btn-purple{
-    background-color: rgb(102, 76, 142);
+    background-color: rgb(113, 107, 198);
     color: white;
     
 }
+.btn-search{
+    background-color: rgb(113, 107, 198);
+    color: white;
+}
+
 .line{
     border-bottom: 1px solid rgba(143,154,164,0.61);
 }
