@@ -13,7 +13,7 @@ const Header = () => {
                <Link to="/">Key</Link>
                </Navbar.Brand>
               <Nav className="me-auto">
-                <Nav.Link href="#home">Заявки</Nav.Link>
+                <Link to="/requests">Заявки</Link>
                 <Nav.Link href="#features">Ключи</Nav.Link>
               </Nav>
               <Nav>
