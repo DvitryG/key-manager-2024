@@ -1,0 +1,53 @@
+.login {
+    width: 400px;
+    margin: 0 auto 20px auto;
+    background-color: #F6F6FB;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 5px #969696;
+}
+.login .logbtn {
+    display: block;
+    width: 100%;
+}
+.login .logbtn:first-of-type {
+    margin-bottom: 15px;
+    
+}
+
+.textTitle{
+    text-align: start;
+    margin-top: 10px;
+
+}
+.inputText{
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    color: red;
+    box-sizing: border-box;
+    margin: 8px 0;
+    padding: 12px 20px;
+
+}
+.bottom{
+    margin: auto;
+}
+
+.btn{
+    width: 100% !important;
+    margin-top:6px !important;
+    padding: 6px 30px !important;
+}
+.btn-search{
+    padding: 6px 30px !important;
+    background-color: rgb(111, 103, 222) !important;
+    color: white !important;
+    width: 100% !important;
+    
+}
+
+.btn-search:hover {
+    box-shadow: #d0c9f2 0 0px 0px 40px inset;
+    color: rgb(95, 69, 131);
+ }
