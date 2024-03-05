@@ -1,4 +1,6 @@
+from uuid import UUID
 from fastapi import APIRouter
+from backend.models.user import User, Token
 
 router = APIRouter(
     prefix="/users",
@@ -8,17 +10,17 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_all_users():
+async def get_all_users() -> list[User]:
     pass
 
 
 @router.post("/register")
-async def register():
+async def register() -> Token:
     pass
 
 
 @router.post("/login")
-async def login():
+async def login() -> Token:
     pass
 
 
@@ -28,7 +30,7 @@ async def logout():
 
 
 @router.get("/me")
-async def read_me():
+async def read_me() -> User:
     pass
 
 
@@ -43,5 +45,5 @@ async def update_my_password():
 
 
 @router.put("/{user_id}")
-async def update_user():
+async def update_user(user_id: UUID):
     pass
