@@ -1,4 +1,6 @@
+from uuid import UUID
 from fastapi import APIRouter
+from backend.models.confirm_receipt_request import ConfirmReceiptRequest
 
 router = APIRouter(
     prefix="/confirm_receipt_requests",
@@ -8,10 +10,10 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_my_confirm_receipt_requests():
+async def get_my_confirm_receipt_requests() -> list[ConfirmReceiptRequest]:
     pass
 
 
-@router.put("/{id}")
-async def confirm_receipt():
+@router.put("/{request_id}")
+async def confirm_receipt(request_id: UUID):
     pass
