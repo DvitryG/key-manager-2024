@@ -1,6 +1,7 @@
 import React from 'react';
 import CardOffices from '../Components/CardOffices';
 import SearchOffices from '../Components/SearchOffices';
+import ListOffices from '../Components/ListOffices';
 
 const OfficesPage = () => {
     return (
@@ -10,13 +11,16 @@ const OfficesPage = () => {
             </div>
             <div className='d-flex flex-row justify-content-center'>
             <CardOffices />
-          <SearchOffices/>
+             <SearchOffices/>
             </div>
-          
-          {/* <div className="container d-flex justify-content-center flex-column w-75">
-          <Card fullName="name" room="203" date="mn 10:35-12:10" status="bad"/>
-          <Card fullName="name" room="201" date="st 10:35-12:10" status="good"/>
-          </div> */}
+
+             <div className="container d-flex justify-content-center flex-column w-75">
+                  <ListOffices room="Кабинет ХХХ"/>
+                     <ListOffices room="Кабинет ХХХ"/>
+                     <ListOffices room="Кабинет ХХХ"/>
+                     <ListOffices room="Кабинет ХХХ"/>
+                     <ListOffices room="Кабинет ХХХ"/>
+          </div>
      
         </div>
     );

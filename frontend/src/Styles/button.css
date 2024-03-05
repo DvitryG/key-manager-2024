@@ -22,10 +22,22 @@
    color: rgb(81, 114, 84); 
 }
 
+.btn-bad{
+    padding: 5px 20px !important;
+    background-color: rgb(248, 225, 225) !important;
+    color: rgb(209, 60, 60) !important;
+    transition: .2s linear !important;
+}
+
+.btn-bad:hover {
+    box-shadow: #f1c0c0 0 0px 0px 40px inset;
+    color: rgb(81, 114, 84); 
+ }
+
 .btn-done{
     padding: 5px 10px !important;
-    background-color: rgb(94, 179, 111) !important;
-    color: white !important;
+    background-color: rgb(233, 177, 177) !important;
+    color: rgb(123, 48, 48) !important;
 }
 .btn-done:hover {
     box-shadow: #428732 0 0px 0px 40px inset;
@@ -52,4 +64,12 @@
     background-color:white !important;
     color:rgb(117, 111, 201)!important;
     border: 2px white !important;  
+}
+
+.btn-secondary{
+    padding: 5px 20px !important;
+    background-color: white !important;
+    color: rgb(114, 62, 142) !important;
+    border: 2px solid #b27be2 !important;
+    transition: .2s linear !important;
 }

@@ -9,7 +9,7 @@ import '../Styles/button.css';
 const CardOffices = () => {
         return (
             <div className="mt-3">
-                 <Form className="search">
+                 <Form className="search mt-0">
                     <div className='container d-flex justify-content-center'>
                      <div className='request-form d-flex flex-row'>
                        <div className="d-flex flex-column">
@@ -27,8 +27,8 @@ const CardOffices = () => {
                     </div>
                         </div>
                       
-                            <div className='d-flex flex-row-reverse p-4'>
-                                <button className='btn btn-search'>Искать</button>
+                            <div className='h-50 align-self-center'>
+                                <button className='btn btn-search d-flex align-items-end mb-2'>Искать</button>
                             </div>
                         </div>
                     </div>
