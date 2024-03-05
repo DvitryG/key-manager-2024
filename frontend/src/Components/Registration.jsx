@@ -2,10 +2,7 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import "../style.css";
-import "../Styles/index.css";
-import "../Styles/button.css";
-import { Link } from "react-router-dom";
+import "../Styles/styleYusuf.css";
 
 const Registration = () => {
   return (
