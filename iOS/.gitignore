@@ -1,0 +1,42 @@
+# Файлы
+
+*.xcworkspace
+xcuserdata/
+build/
+DerivedData/
+*.app
+*.framework
+*.xcarchive
+*.ipa
+*.car
+*.dSYM
+*.DSYM.zip
+*.log
+*.xcconfig
+*.pbxproj
+*.modeldata
+*.storyboardcache
+*.xccheckout
+*.xcodeproj
+*.xcuserstate
+Podfile.lock
+Pods/
+
+# Папки
+
+Carthage/
+CocoaPods/
+node_modules/
+Pods/
+Tests/
+.build/
+
+# Другие
+
+.DS_Store
+README.md
+LICENSE
+CHANGELOG
+Podfile
+Gemfile
+Fastlane/
