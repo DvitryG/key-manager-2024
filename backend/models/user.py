@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 from uuid import UUID, uuid4
 from enum import Enum
 
@@ -10,7 +10,7 @@ class Role(str, Enum):
     STUDENT = "student"
 
 
-class User(BaseModel):
+class User(SQLModel):
     user_id: UUID = uuid4()
     name: str
     email: str
@@ -21,6 +21,6 @@ class UserInDB(User):
     password_hash: str
 
 
-class Token(BaseModel):
+class Token(SQLModel):
     access_token: str
     token_type: str

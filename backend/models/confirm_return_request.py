@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 from uuid import UUID
 
 
-class ConfirmReturnRequest(BaseModel):
+class ConfirmReturnRequest(SQLModel):
     room_id: UUID
     confirmed: bool = False

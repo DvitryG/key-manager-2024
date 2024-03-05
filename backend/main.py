@@ -1,6 +1,6 @@
 import time
 from fastapi import FastAPI, Request
-
+from dotenv import load_dotenv
 from backend.routers import (
     user,
     room,
@@ -10,6 +10,7 @@ from backend.routers import (
     confirm_receipt_request
 )
 
+load_dotenv('.env')
 app = FastAPI()
 
 
