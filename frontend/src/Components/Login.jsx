@@ -9,8 +9,8 @@ import { Link } from "react-router-dom";
 
 const Login = () => {
   return (
-    <Container className="mt-3">
-      <Form className="login">
+    <Container className="mt-3 w-50">
+      <Form className="reg">
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <h6 className="textTitle">Email</h6>
           <Form.Control type="email" placeholder="name@example.com" />

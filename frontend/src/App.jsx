@@ -11,6 +11,7 @@ import RequestPage from './Pages/RequestPage';
 import {KeysPage}  from './Pages/KeysPage';
 import {UserListPage} from './Pages/UserListPage';
 import OfficesPage from './Pages/OfficesPage';
+import EditUser from './Pages/EditUser';
 
 
 function App() {
@@ -29,6 +30,8 @@ function App() {
         <Route path='/list' element={<UserListPage />}/>
         <Route path='/office' element={<OfficesPage />}/>
         <Route path='/profile' element={<ProfilePage/>}/>
+        <Route path='/users' element={<EditUser/>}/>
+
      </Routes>
      </>
   );
