@@ -9,6 +9,7 @@ import RegistrationPage from './Pages/RegistrationPage';
 import RequestPage from './Pages/RequestPage';
 import {KeysPage}  from './Pages/KeysPage';
 import {UserListPage} from './Pages/UserListPage';
+import OfficesPage from './Pages/OfficesPage';
 
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
         <Route path='/requests'  element={<RequestPage />}/>
         <Route path='/keys'  element={<KeysPage />}/>
         <Route path='/list' element={<UserListPage />}/>
+        <Route path='/office' element={<OfficesPage />}/>
+
      </Routes>
      </>
   );
