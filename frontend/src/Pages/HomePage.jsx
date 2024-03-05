@@ -1,15 +1,15 @@
-import React from 'react';
+// import React from 'react';
 
 
 
-const HomePage = () => {
-  
-    return (
-        <div className='container'>
+// const HomePage = () => {
+//   0
+//     return (
+//         <div className='container'>
            
-        ttatatta
-        </div>
-    );
-}
+//         ttatatta
+//         </div>
+//     );
+// }
 
-export default HomePage;
+// export default HomePage;

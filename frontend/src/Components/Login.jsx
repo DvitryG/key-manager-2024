@@ -10,7 +10,6 @@ const Login = () => {
   return (
     <Container className="mt-3">
       <Form className="login">
-      <h1 className="textTitle">Вход</h1>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <h6 className="textTitle">Email</h6>
           <Form.Control type="email" placeholder="name@example.com" />
@@ -22,10 +21,10 @@ const Login = () => {
           <Form.Control type="password" placeholder="Password" />
         </Form.Group>
         <div>
-        <Button className="logbtn" variant="secondary" type="submit">
+        <Button className="logbtn d-grid gap-2 col-6 mx-auto" variant="secondary" type="submit">
           Войти
         </Button>
-        <Button className="regbtn" variant="primary" type="submit">
+        <Button className="regbtn d-grid gap-2 col-6 mx-auto" variant="primary" type="submit">
            <Link to="/registration">Регистрация</Link> 
         </Button>
         </div>
