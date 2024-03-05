@@ -1,4 +1,3 @@
-# TODO: RU for confirm return requests
 from fastapi import APIRouter
 
 router = APIRouter(
