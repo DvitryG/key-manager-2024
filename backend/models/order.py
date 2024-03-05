@@ -1,5 +1,5 @@
 from abc import ABC
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 from datetime import date, time
 from uuid import UUID, uuid4
 from enum import Enum
@@ -25,7 +25,7 @@ class Interval(str, Enum):
     sixth_lesson = "sixth_lesson"
 
 
-class Order(BaseModel, ABC):
+class Order(SQLModel, ABC):
     order_id: UUID = uuid4()
     user_id: UUID
     room_id: UUID
