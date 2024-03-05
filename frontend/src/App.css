@@ -47,11 +47,11 @@ a {
   text-decoration: none !important;
 }
 
-a:hover {
+/* a:hover {
   text-decoration:none !important; 
   cursor:pointer !important;  
   color: rgb(162, 113, 229) !important; 
-}
+} */
 
 .btn-primary {
   padding: 5px 40px !important;
@@ -62,6 +62,10 @@ a:hover {
   text-decoration:none !important; 
   cursor:pointer !important;  
 }
+.btn-primary:hover {
+  box-shadow: #d0c9f2 0 0px 0px 40px inset !important;
+  color: rgb(186, 171, 208) !important;;
+}
 
 .btn-secondary{
   text-decoration:none !important; 
@@ -69,4 +73,8 @@ a:hover {
 .btn:hover{
   text-decoration:none !important; 
 
+}
+.btn-secondary:hover {
+  box-shadow: #d0c9f2 0 0px 0px 40px inset !important;
+  color: rgb(95, 69, 131) !important;;
 }

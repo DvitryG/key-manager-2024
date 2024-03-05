@@ -10,7 +10,6 @@ const Login = () => {
   return (
     <Container className="mt-3">
       <Form className="login">
-      <h1 className="textTitle">Вход</h1>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <h6 className="textTitle">Email</h6>
           <Form.Control type="email" placeholder="name@example.com" />

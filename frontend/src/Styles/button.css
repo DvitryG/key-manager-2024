@@ -38,8 +38,5 @@
     color: white !important;
     width: 50% !important;
 }
-.btn-logbtn:hover {
-    box-shadow: #d0c9f2 0 0px 0px 40px inset  !important;
-    color: rgb(95, 69, 131);
-}
+
 

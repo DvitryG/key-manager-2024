@@ -13,13 +13,14 @@ const Header = () => {
       
           <Navbar bg="navbar" data-bs-theme="dark">
             <Container>
-              <Navbar.Brand>
+              {/* <Navbar.Brand>
                <Link to="/keys">Выданные ключи</Link>
-               </Navbar.Brand>
+               </Navbar.Brand> */}
               <Nav className="me-auto">
                 <Link to="/requests" className='me-2'>Заявки</Link>
                 <Link to="/list" className='me-2'>Пользователи</Link>
-                <Link href="#feature">Кабинеты</Link>
+                <Link href="#feature" className='me-2'>Кабинеты</Link>
+                <Link to="/keys" className=''>Выданные ключи</Link>
               </Nav>
               <Nav>
               <Nav>
