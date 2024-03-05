@@ -1,4 +1,3 @@
-# TODO: CRU for orders
 from datetime import time
 from fastapi import APIRouter
 from uuid import UUID

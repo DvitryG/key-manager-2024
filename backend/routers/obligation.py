@@ -1,4 +1,3 @@
-# TODO: R for Obligations
 from fastapi import APIRouter
 
 router = APIRouter(
