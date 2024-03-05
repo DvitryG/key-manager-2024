@@ -36,7 +36,20 @@
     padding: 5px 10px !important;
     background-color: rgb(135, 129, 228) !important;
     color: white !important;
-    width: 50% !important;
+    width: 100% !important;
 }
 
+.regist{
+    background-color: rgb(135, 129, 228) !important;
+    color: white !important;
+    transition: .2s linear !important;  
+    text-decoration:none !important; 
+    cursor:pointer !important;  
+    width: 100% !important;   
+}
 
+.acc{
+    background-color:white !important;
+    color:rgb(117, 111, 201)!important;
+    border: 2px white !important;  
+}

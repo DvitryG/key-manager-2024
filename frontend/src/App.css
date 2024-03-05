@@ -54,17 +54,19 @@ a {
 } */
 
 .btn-primary {
+  width: 100% !important;
   padding: 5px 40px !important;
   background-color: white !important;
-  color:rgb(95, 69, 131) !important;
-  border: 2px solid #a576c5 !important;  
+  color:rgb(152, 112, 207) !important;
+  border: 2px solid rgb(152, 146, 238) !important;  
   transition: .2s linear !important;  
   text-decoration:none !important; 
   cursor:pointer !important;  
 }
 .btn-primary:hover {
+  text-decoration:none !important; 
   box-shadow: #d0c9f2 0 0px 0px 40px inset !important;
-  color: rgb(186, 171, 208) !important;;
+  color: rgb(117, 111, 201) !important;
 }
 
 .btn-secondary{

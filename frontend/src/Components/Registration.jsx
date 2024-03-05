@@ -3,12 +3,14 @@ import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import "../style.css";
+import "../Styles/index.css";
+import "../Styles/button.css";
+import { Link } from "react-router-dom";
 
 const Registration = () => {
   return (
-    <Container className="mt-3">
+    <Container className="mt-3 w-50">
       <Form className="reg">
-      <h1 className="textTitle">Регистрация</h1>
       <Form.Group className="mb-3" controlId="formBasicEmail">
           <h6 className="textTitle">ФИО</h6>
           <Form.Control type="text" placeholder="Иванов Иван Иванович" />
@@ -28,7 +30,10 @@ const Registration = () => {
           <Form.Control type="password"/>
         </Form.Group>
         <div>
-        <Button className="logbtn" variant="primary" type="submit">
+        <Button className="acc mb-3 d-grid gap-2 col-6 mx-auto">
+          <Link to="/login">Уже есть аккаунт?</Link> 
+        </Button>
+        <Button className="regist mb-3 d-grid gap-2 col-6 mx-auto">
           Зарегистроваться
         </Button>
         </div>
