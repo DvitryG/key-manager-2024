@@ -23,6 +23,11 @@ async def give_room():
     pass
 
 
+@router.put("/{room_id}")
+async def set_room_availability():
+    pass
+
+
 @router.delete("/{room_id}")
 async def delete_room():
     pass
