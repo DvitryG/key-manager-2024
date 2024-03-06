@@ -3,7 +3,7 @@ import UserSearch from '../Components/UserSearch';
 import UserList from '../Components/UserList';
 
 
-export const UserListPage = () => {
+function UserListPage (){
     return (
         <div>
             <div className="request-header p-4 ps-5">
@@ -23,3 +23,4 @@ export const UserListPage = () => {
      </div>
     );
 }
+export default UserListPage;

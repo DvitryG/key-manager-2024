@@ -4,13 +4,13 @@ import {
   Routes, Route
 } from "react-router-dom";
 import LoginPage from './Pages/LoginPage';
-import HomePage from './Pages/HomePage';
 import ProfilePage from './Pages/ProfilePage';
 import RegistrationPage from './Pages/RegistrationPage';
 import RequestPage from './Pages/RequestPage';
-import {KeysPage}  from './Pages/KeysPage';
-import {UserListPage} from './Pages/UserListPage';
+import KeysPage  from './Pages/KeysPage';
+import UserListPage from './Pages/UserListPage';
 import OfficesPage from './Pages/OfficesPage';
+import EditUser from './Pages/EditUser';
 
 
 function App() {
@@ -21,7 +21,6 @@ function App() {
       </div>
    
      <Routes >
-        <Route path='/' element={<HomePage/>}/>
         <Route path='/login' element={<LoginPage />} />
         <Route path='/registration' element={<RegistrationPage />} />
         <Route path='/requests'  element={<RequestPage />}/>
@@ -29,6 +28,8 @@ function App() {
         <Route path='/list' element={<UserListPage />}/>
         <Route path='/office' element={<OfficesPage />}/>
         <Route path='/profile' element={<ProfilePage/>}/>
+        <Route path='/users' element={<EditUser/>}/>
+
      </Routes>
      </>
   );
