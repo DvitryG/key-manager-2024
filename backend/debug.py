@@ -1,6 +1,6 @@
 import os
 import uvicorn
-from backend.main import create_db_and_tables
+from backend.database import create_db_and_tables
 
 
 if __name__ == "__main__":

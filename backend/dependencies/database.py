@@ -1,4 +1,4 @@
-from backend.main import db_engine
+from backend.database import db_engine
 from sqlmodel import Session
 
 
