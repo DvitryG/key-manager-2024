@@ -11,7 +11,7 @@ const KeysCard = ({  person, room }) => {
                 <div className='mb-2 fw-semibold'>Ключ от {room}</div>
                 <div>У: {person}</div>
             </div>
-                <div className='btn btn-good mb-3'>Подтвердить возврат</div>
+                <div className='btn btn-good mb-3 w-25'>Подтвердить возврат</div>
         </div>
        </>
         

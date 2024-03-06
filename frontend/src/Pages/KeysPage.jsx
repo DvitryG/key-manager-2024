@@ -44,9 +44,7 @@ const renderCards = data.map((card)=>
             </div>
         <SearchKeys/>
           <div className="container d-flex justify-content-center flex-column w-75">
-          {/* <KeysCard  person={user.name}/>
-          <KeysCard  person="Иванова Ивана Ивановича"/> */}
-        {renderCards}
+            {renderCards}
           </div>
 
         </div>

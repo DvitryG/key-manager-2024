@@ -9,7 +9,7 @@ const ListOffices = ({room}) => {
             <div className='d-flex flex-column'>
                 <div className='d-flex w-50 justify-content-start'> {room}</div>
             </div>
-                <div className='btn btn-bad mb-3'>Сделать недоступным</div>
+                <div className='btn btn-bad mb-3 w-25'>Сделать недоступным</div>
         </div>
        </>
     );
