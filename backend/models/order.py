@@ -1,7 +1,8 @@
+from typing import Optional
 from abc import ABC
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, Field
 from datetime import date, time
-from uuid import UUID, uuid4
+from uuid import UUID
 from enum import Enum
 
 
@@ -26,18 +27,18 @@ class Interval(str, Enum):
 
 
 class Order(SQLModel, ABC):
-    order_id: UUID = uuid4()
-    user_id: UUID
-    room_id: UUID
+    order_id: Optional[UUID] = Field(default=None, primary_key=True)
+    user_id: UUID = Field(index=True)
+    room_id: UUID = Field(index=True)
     start_time: time
     end_time: time
-    status: OrderStatus = OrderStatus.IN_PROGRESS
-    blocked: bool = False
+    status: OrderStatus = Field(default=OrderStatus.IN_PROGRESS, index=True)
+    blocked: bool = Field(default=False, index=True)
 
 
-class SimpleOrder(Order):
-    date: date
+class SimpleOrder(Order, table=True):
+    day: date = Field(index=True)
 
 
-class CyclicOrder(Order):
-    week_day: int
+class CyclicOrder(Order, table=True):
+    week_day: int = Field(index=True)

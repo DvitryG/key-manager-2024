@@ -1,9 +1,9 @@
-from abc import ABC
-from sqlmodel import SQLModel
-from uuid import UUID, uuid4
+from typing import Optional
+from sqlmodel import SQLModel, Field
+from uuid import UUID
 
 
-class Room(SQLModel, ABC):
-    room_id: UUID = uuid4()
-    name: str
-    blocked: bool = False
+class Room(SQLModel, table=True):
+    room_id: Optional[UUID] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    blocked: bool = Field(default=False, index=True)
