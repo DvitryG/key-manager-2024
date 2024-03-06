@@ -2,7 +2,7 @@ from typing import Optional, Sequence
 from abc import ABC
 from sqlmodel import SQLModel, Field
 from datetime import date, time
-from uuid import UUID
+from uuid import UUID, uuid4
 from enum import Enum
 
 
@@ -12,22 +12,8 @@ class OrderStatus(str, Enum):
     CLOSED = "CLOSED"
 
 
-class Interval(str, Enum):
-    first_lesson = "first_lesson"
-    first_break = "first_break"
-    second_lesson = "second_lesson"
-    second_break = "second_break"
-    third_lesson = "third_lesson"
-    third_break = "third_break"
-    fourth_lesson = "fourth_lesson"
-    fourth_break = "fourth_break"
-    fifth_lesson = "fifth_lesson"
-    fifth_break = "fifth_break"
-    sixth_lesson = "sixth_lesson"
-
-
 class Order(SQLModel, ABC):
-    order_id: Optional[UUID] = Field(default=None, primary_key=True)
+    order_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(index=True)
     room_id: UUID = Field(index=True)
     start_time: time
@@ -46,7 +32,8 @@ class CyclicOrder(Order, table=True):
 
 class CreateOrderRequest(SQLModel, ABC):
     room_id: UUID
-    interval: Interval
+    start_time: time
+    end_time: time
 
 
 class CreateSimpleOrderRequest(CreateOrderRequest):
