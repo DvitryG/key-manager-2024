@@ -1,4 +1,4 @@
-from datetime import time, date
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -13,7 +13,6 @@ from backend.models.order import (
     SimpleOrder,
     CyclicOrder,
     OrderStatus,
-    Interval,
     CreateSimpleOrderRequest,
     CreateCyclicOrderRequest,
     OrdersListsResponse
@@ -49,25 +48,32 @@ async def get_all_orders(
         db_session: Annotated[Session, Depends(get_db_session)],
         user_id: UUID = None,
         day: date | None = None,
-        order_status: Annotated[list[OrderStatus] | None, Query()] = None,
+        order_status: Annotated[OrderStatus | None, Query()] = None,
         blocked: bool | None = None,
         room_id: UUID = None,
 ) -> OrdersListsResponse:
-    filters = []
-    if user_id:
-        filters.append(Order.user_id == user_id)
-    if order_status is not None:
-        filters.append(Order.status in order_status)
-    if blocked is not None:
-        filters.append(Order.blocked == blocked)
-    if room_id:
-        filters.append(Order.room_id == room_id)
+    simple_order_filters = []
+    cyclic_order_filters = []
 
-    simple_order_filters = filters.copy()
-    cyclic_order_filters = filters.copy()
+    if user_id:
+        simple_order_filters.append(SimpleOrder.user_id == str(user_id))
+        cyclic_order_filters.append(CyclicOrder.user_id == str(user_id))
+
+    if order_status is not None:
+        simple_order_filters.append(SimpleOrder.status == order_status)
+        cyclic_order_filters.append(CyclicOrder.status == order_status)
+
     if day:
         simple_order_filters.append(SimpleOrder.day == day)
         cyclic_order_filters.append(CyclicOrder.week_day == day.weekday())
+
+    if blocked is not None:
+        simple_order_filters.append(SimpleOrder.blocked == blocked)
+        cyclic_order_filters.append(CyclicOrder.blocked == blocked)
+
+    if room_id:
+        simple_order_filters.append(SimpleOrder.room_id == room_id)
+        cyclic_order_filters.append(CyclicOrder.room_id == room_id)
 
     simple_orders = db_session.exec(
         select(SimpleOrder).where(*simple_order_filters)
@@ -83,20 +89,47 @@ async def get_all_orders(
 
 
 @router.post("/simple")
-async def create_simple_order(order: CreateSimpleOrderRequest):
-    pass
+async def create_simple_order(
+        user: Annotated[User, Depends(get_user)],
+        db_session: Annotated[Session, Depends(get_db_session)],
+        order: CreateSimpleOrderRequest
+) -> SimpleOrder:
+    new_order = SimpleOrder(
+        user_id=user.user_id,
+        **order.model_dump()
+    )
+    db_session.add(new_order)
+    db_session.commit()
+
+    return new_order
 
 
 @router.post("/cyclic")
-async def create_cyclic_order(order: CreateCyclicOrderRequest):
-    pass
+async def create_cyclic_order(
+        user: Annotated[User, Depends(get_user)],
+        db_session: Annotated[Session, Depends(get_db_session)],
+        order: CreateCyclicOrderRequest
+) -> CyclicOrder:
+    new_order = CyclicOrder(
+        user_id=user.user_id,
+        **order.model_dump()
+    )
+    db_session.add(new_order)
+    db_session.commit()
+
+    return new_order
 
 
 @router.put("/{order_id}/state")
-async def change_order_state(order_id: UUID, state: OrderStatus):
-    pass
-
-
-@router.get("/intervals")
-async def get_intervals() -> dict[Interval, tuple[time, time]]:
-    pass
+async def change_order_state(
+        db_session: Annotated[Session, Depends(get_db_session)],
+        order_id: UUID,
+        state: OrderStatus
+):
+    order = (db_session.get(SimpleOrder, order_id) or
+             db_session.get(CyclicOrder, order_id))
+    if not order:
+        raise ValueError("Order not found") #  TODO: change to 404
+    order.status = state
+    db_session.add(order)
+    db_session.commit()
