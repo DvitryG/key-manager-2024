@@ -3,7 +3,7 @@ import CardOffices from '../Components/CardOffices';
 import SearchOffices from '../Components/SearchOffices';
 import ListOffices from '../Components/ListOffices';
 
-const OfficesPage = () => {
+function OfficesPage(){
     return (
         <div>
             <div className="request-header p-4 ps-5">
