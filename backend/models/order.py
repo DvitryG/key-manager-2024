@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 from abc import ABC
 from sqlmodel import SQLModel, Field
 from datetime import date, time
@@ -42,3 +42,21 @@ class SimpleOrder(Order, table=True):
 
 class CyclicOrder(Order, table=True):
     week_day: int = Field(index=True)
+
+
+class CreateOrderRequest(SQLModel, ABC):
+    room_id: UUID
+    interval: Interval
+
+
+class CreateSimpleOrderRequest(CreateOrderRequest):
+    day: date
+
+
+class CreateCyclicOrderRequest(CreateOrderRequest):
+    week_day: int
+
+
+class OrdersListsResponse(SQLModel):
+    simple_orders: Sequence[SimpleOrder]
+    cyclic_orders: Sequence[CyclicOrder]
