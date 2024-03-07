@@ -10,7 +10,8 @@ from backend.dependencies.user import (
     get_current_user,
     get_verified_email,
     get_validated_password,
-    get_current_user_session
+    get_current_user_session,
+    authorize
 )
 from backend.models.user import (
     User,
@@ -33,7 +34,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("/", dependencies=[Depends(authorize())])
 async def get_all_users(
         db_session: Annotated[Session, Depends(get_db_session)],
         name: Annotated[str | None, Query()] = None,
@@ -145,14 +146,39 @@ async def update_my_password(
 async def update_user_role(
         db_session: Annotated[Session, Depends(get_db_session)],
         user_id: UUID,
-        roles: Annotated[list[Role], Body()]
-) -> User:
-    user = db_session.get(UserInDB, user_id)
-    if not user:
+        include: Annotated[set[Role], Body()],
+        exclude: Annotated[set[Role], Body()],
+        current_user_roles: Annotated[
+            set[Role],
+            Depends(authorize(Role.ADMIN, Role.DEAN))
+        ],
+):
+    permission_error = HTTPException(
+        status_code=403,
+        detail="Not enough permissions"
+    )
+    include_or_exclude = include | exclude
+
+    if include & exclude:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot include and exclude the same roles"
+        )
+
+    if Role.ADMIN in include_or_exclude:
+        raise permission_error
+
+    if Role.DEAN in include_or_exclude and Role.ADMIN not in current_user_roles:
+        raise permission_error
+
+    target_user = db_session.get(UserInDB, user_id)
+    if not target_user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.roles = roles
-    db_session.add(user)
+
+    target_user.roles = target_user.roles - exclude | include
+
+    db_session.add(target_user)
     db_session.commit()
 
-    db_session.refresh(user)
-    return user
+    db_session.refresh(target_user)
+    return target_user
