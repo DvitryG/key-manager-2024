@@ -30,8 +30,8 @@ async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)], na
         params.append(Room.blocked==blocked)
 
     statement = select(Room).where(*params)
-    rooms = session.exec(statement)
-    rooms = rooms.all()
+    rooms = session.exec(statement).all()
+    rooms.sort(key = lambda room: room.name)
     return rooms
 
 
@@ -71,7 +71,7 @@ async def set_room_availability(room_id: UUID, availability: bool,
         session.commit()
         session.refresh(room)
         return room.room_id
-    else: #TODO:подумать над выбросом исключения
+    else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"The room with room_id: {room_id} doesn't exist in the system."
@@ -81,5 +81,17 @@ async def set_room_availability(room_id: UUID, availability: bool,
 
 #TODO:если room_id не найден-> выкинуть ошибку
 @router.delete("/{room_id}")
-async def delete_room(room_id: UUID):
+async def delete_room(room_id: UUID,
+                      session: Annotated[Session, Depends(get_db_session)]):
+    result = session.exec(select(Room).where(Room.room_id == room_id))
+    room = result.first()
+    if room is not None:
+        session.delete(room)
+        session.commit()
+        return True
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"The room with room_id: {room_id} not found in the system."
+        )
     pass
