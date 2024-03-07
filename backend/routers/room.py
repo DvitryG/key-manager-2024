@@ -1,4 +1,4 @@
-import uuid
+#TODO[Dima]:добавить проверку на авторизацию и наличие прав
 from typing import Annotated
 from uuid import UUID
 import uuid
@@ -20,39 +20,9 @@ def uuid_generator():
     id = uuid.uuid4()
     return id
 
-async def select_room_by_name(session: Annotated[Session, Depends(get_db_session)], name: str):
-    statement = select(Room).where(Room.name==name)
-    rooms = session.exec(statement)
-    return rooms
 
-async def select_room_by_state( session: Annotated[Session, Depends(get_db_session)], blocked: bool):
-
-    if blocked == True:
-        statement = select(Room).where(Room.blocked==True)
-    else:
-        statement = select(Room).where(Room.blocked==False)
-    rooms = session.exec(statement)
-    return rooms
-
-async def select_all_rooms_default(session: Annotated[Session, Depends(get_db_session)]):
-
-    statement = select(Room)
-    rooms = session.exec(statement).all()
-    return rooms
-
-async def select_all_rooms_by_filters(name: str, blocked: bool,
-                                      session: Annotated[Session, Depends(get_db_session)]):
-
-    if blocked==True:
-        statement = select(Room).where(Room.name==name, Room.blocked==True )
-    else:
-        statement = select(Room).where(Room.name==name, Room.blocked==False )
-    rooms = session.exec(statement)
-    return rooms
-
-@router.get("/")
-async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)],
-                        name: str | None = None, blocked: bool | None = None):
+@router.get("/")#TODO:добавить пагинацию
+async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)], name: str | None = None, blocked: bool | None = None):
     params = []
     if name is not None:
         params.append(Room.name==name)
@@ -76,7 +46,7 @@ async def create_room(name: str,
             detail=f"The room with name:{name} already exists in the system."
         )
     else:
-        room = Room(room_id=room_id, name=name) #TODO:проверка на наличие кабинета с занятым названием
+        room = Room(room_id=room_id, name=name)
         session.add(room)
         session.commit()
     return room.room_id
@@ -89,10 +59,25 @@ async def give_room(room_id: UUID, user_id: UUID):
 
     pass
 
-#TODO:если room_id не найден-> выкинуть ошибку
+
 @router.put("/{room_id}")
-async def set_room_availability(room_id: UUID, availability: bool):
-    pass
+async def set_room_availability(room_id: UUID, availability: bool,
+                                session: Annotated[Session, Depends(get_db_session)]):
+    result = session.exec(select(Room).where(Room.room_id==room_id))
+    room = result.one()
+    if room:
+        room.blocked = availability
+        session.add(room)
+        session.commit()
+        session.refresh(room)
+        return room.room_id
+    else: #TODO:подумать над выбросом исключения
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The room with room_id: {room_id} doesn't exist in the system."
+        )
+
+
 
 #TODO:если room_id не найден-> выкинуть ошибку
 @router.delete("/{room_id}")
