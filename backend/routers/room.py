@@ -1,4 +1,5 @@
 #TODO[Dima]:добавить проверку на авторизацию и наличие прав
+import math
 from typing import Annotated
 from uuid import UUID
 import uuid
@@ -7,7 +8,7 @@ from sqlmodel import Session, select
 from starlette import status
 
 from backend.dependencies.database import get_db_session
-from backend.models.room import Room
+from backend.models.room import Room, RoomsListResponse, Pagination
 
 router = APIRouter(
     prefix="/rooms",
@@ -22,7 +23,11 @@ def uuid_generator():
 
 
 @router.get("/")#TODO:добавить пагинацию
-async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)], name: str | None = None, blocked: bool | None = None):
+async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)],
+                        name: str | None = None,
+                        page: int | None = 1,
+                        size: int | None = 6,
+                        blocked: bool | None = None) -> RoomsListResponse:
     params = []
     if name is not None:
         params.append(Room.name==name)
@@ -32,7 +37,21 @@ async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)], na
     statement = select(Room).where(*params)
     rooms = session.exec(statement).all()
     rooms.sort(key = lambda room: room.name)
-    return rooms
+
+    paginated_list = []
+    size = size if size <= len(rooms) else len(rooms)
+    start_index = size * (page-1)
+    last_index = start_index + size if start_index + size <= len(rooms) else len(rooms)
+
+    for i in range(start_index, last_index):
+        paginated_list.append(rooms[i])
+    size = size if size > 0 else 1
+    pagination = Pagination(size= size, count=math.ceil(len(rooms)/size), current=page)
+
+    return RoomsListResponse(
+        rooms=paginated_list,
+        pagination=pagination
+    )
 
 
 @router.post("/")
@@ -78,8 +97,6 @@ async def set_room_availability(room_id: UUID, availability: bool,
         )
 
 
-
-#TODO:если room_id не найден-> выкинуть ошибку
 @router.delete("/{room_id}")
 async def delete_room(room_id: UUID,
                       session: Annotated[Session, Depends(get_db_session)]):
@@ -94,4 +111,3 @@ async def delete_room(room_id: UUID,
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"The room with room_id: {room_id} not found in the system."
         )
-    pass
