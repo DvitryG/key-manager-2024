@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel
-from uuid import UUID
+from uuid import UUID, uuid4
 from enum import Enum
 
 
@@ -12,10 +12,10 @@ class Role(str, Enum):
 
 
 class User(SQLModel):
-    user_id: Optional[UUID] = Field(default=None, primary_key=True)
+    user_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
-    email: str
-    roles_str: str = Field(index=True)
+    email: str = Field(unique=True, index=True)
+    roles_str: str = Field(default='', index=True)
 
     @staticmethod
     def roles_to_str(roles: list[Role]) -> str:
@@ -34,6 +34,16 @@ class UserInDB(User, table=True):
     password_hash: str
 
 
+class UserSession(SQLModel, table=True):
+    session_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID
+
+
 class Token(SQLModel):
     access_token: str
     token_type: str
+
+
+class LoginRequest(SQLModel):
+    email: str
+    password: str
