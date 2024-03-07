@@ -64,8 +64,8 @@ async def give_room(room_id: UUID, user_id: UUID):
 async def set_room_availability(room_id: UUID, availability: bool,
                                 session: Annotated[Session, Depends(get_db_session)]):
     result = session.exec(select(Room).where(Room.room_id==room_id))
-    room = result.one()
-    if room:
+    room = result.first()
+    if room is not None:
         room.blocked = availability
         session.add(room)
         session.commit()
