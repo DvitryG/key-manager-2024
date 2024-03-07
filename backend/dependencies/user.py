@@ -11,7 +11,7 @@ from email_validator import validate_email, EmailNotValidError
 
 from backend.constants import SECRET_KEY, ALGORITHM
 from backend.dependencies.database import get_db_session
-from backend.models.user import UserInDB, UserSession
+from backend.models.user import UserInDB, UserSession, User, Role
 
 oauth2_scheme = OAuth2PasswordBearer('users/token')
 
@@ -48,6 +48,21 @@ def get_current_user(
         user_and_session: Annotated[dict, Depends(get_current_user_and_session)],
 ) -> UserInDB:
     return user_and_session['user']
+
+
+def authorize(*required_roles: Role):
+    def check_roles(user: Annotated[User, Depends(get_current_user)]) -> set[Role]:
+        """
+        Возвращает пользователя, если пользователь имеет хотя бы одну из необходимых ролей, или необходимых ролей нет
+        """
+        if required_roles and not any(role in required_roles for role in user.roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions",
+            )
+        return user.roles
+
+    return check_roles
 
 
 def get_current_user_session(

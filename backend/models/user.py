@@ -18,15 +18,17 @@ class User(SQLModel):
     roles_str: str = Field(default='', index=True)
 
     @staticmethod
-    def roles_to_str(roles: list[Role]) -> str:
+    def roles_to_str(roles: set[Role]) -> str:
         return ",".join([role.value for role in sorted(roles)])
 
     @property
-    def roles(self) -> list[Role]:
-        return [Role(role) for role in self.roles_str.split(",")]
+    def roles(self) -> set[Role]:
+        if not self.roles_str:
+            return set()
+        return {Role(role) for role in self.roles_str.split(",")}
 
     @roles.setter
-    def roles(self, roles: list[Role]):
+    def roles(self, roles: set[Role]):
         self.roles_str = User.roles_to_str(roles)
 
 
