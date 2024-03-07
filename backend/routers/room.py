@@ -21,6 +21,21 @@ def uuid_generator():
     id = uuid.uuid4()
     return id
 
+async def paginate_rooms_list(rooms: Room, size: int, page: int) -> RoomsListResponse:
+    paginated_list = []
+    size = size if size <= len(rooms) else len(rooms)
+    start_index = size * (page - 1)
+    last_index = start_index + size if start_index + size <= len(rooms) else len(rooms)
+
+    for i in range(start_index, last_index):
+        paginated_list.append(rooms[i])
+    size = size if size > 0 else 1
+    pagination = Pagination(size=size, count=math.ceil(len(rooms) / size), current=page)
+
+    return RoomsListResponse(
+        rooms=paginated_list,
+        pagination=pagination
+    )
 
 @router.get("/")#TODO:добавить пагинацию
 async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)],
@@ -38,20 +53,9 @@ async def get_all_rooms(session: Annotated[Session, Depends(get_db_session)],
     rooms = session.exec(statement).all()
     rooms.sort(key = lambda room: room.name)
 
-    paginated_list = []
-    size = size if size <= len(rooms) else len(rooms)
-    start_index = size * (page-1)
-    last_index = start_index + size if start_index + size <= len(rooms) else len(rooms)
+    rooms = await paginate_rooms_list(rooms, size, page)
+    return rooms
 
-    for i in range(start_index, last_index):
-        paginated_list.append(rooms[i])
-    size = size if size > 0 else 1
-    pagination = Pagination(size= size, count=math.ceil(len(rooms)/size), current=page)
-
-    return RoomsListResponse(
-        rooms=paginated_list,
-        pagination=pagination
-    )
 
 
 @router.post("/")
