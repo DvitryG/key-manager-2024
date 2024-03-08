@@ -21,10 +21,12 @@ from backend.models.user import (
     Role,
     UserSession
 )
+from backend.tools.common import custom_db_filter
 from backend.tools.user import (
     hash_password,
     authenticate_user,
-    verify_password
+    verify_password,
+    is_similar_usernames
 )
 
 router = APIRouter(
@@ -41,7 +43,10 @@ async def get_all_users(
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> Sequence[User]:
-    # TODO: add filter by name
+    if name:
+        return await custom_db_filter(
+            db_session, UserInDB, lambda user: is_similar_usernames(user.name, name)
+        )
     return db_session.exec(
         select(UserInDB).offset(page * page_size).limit(page_size)
     ).all()
