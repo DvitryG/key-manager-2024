@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 from sqlmodel import SQLModel, Field
 from uuid import UUID, uuid4
 
@@ -16,5 +16,6 @@ class Pagination(SQLModel):
 
 
 class RoomsListResponse(SQLModel):
-    rooms: Room
+    rooms: Sequence[Room]
     pagination: Pagination
+

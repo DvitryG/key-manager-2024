@@ -2,7 +2,8 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
+from sqlalchemy import func
 from sqlmodel import Session, select
 from starlette import status
 
@@ -21,23 +22,33 @@ router = APIRouter(
 @router.get("/")
 async def get_all_rooms(
         db_session: Annotated[Session, Depends(get_db_session)],
-        name: str | None = None,
-        page: int | None = 1,
-        size: int | None = 6,
+        current_page: int = 1,
+        page_size: int = 6,
         blocked: bool | None = None
 ) -> RoomsListResponse:
     params = []
-    if name is not None:
-        params.append(Room.name == name)
+
     if blocked is not None:
         params.append(Room.blocked == blocked)
 
-    statement = select(Room).where(*params)
+    statement = select(Room).where(*params).offset((current_page - 1) * page_size).limit(page_size).order_by(Room.name)
     rooms = db_session.exec(statement).all()
-    rooms.sort(key=lambda room: room.name)
+    rooms_count = len(rooms) if len(params) != 0 else db_session.exec(
+        select(func.count(Room.room_id))
+    ).first()
 
-    rooms = await paginate_rooms_list(rooms, size, page)
+    rooms = await paginate_rooms_list(rooms, current_page, page_size, rooms_count)
     return rooms
+
+
+@router.get("/search")
+async def get_rooms_by_name(
+        db_session: Annotated[Session, Depends(get_db_session)],
+        name: str | None = None,
+) -> RoomsListResponse:
+    rooms = []
+    return rooms
+
 
 
 #TODO:сделать генерацию id в конструкторе
@@ -89,3 +100,6 @@ async def delete_room(
 ):
     db_session.delete(room)
     db_session.commit()
+
+
+
