@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime, timezone
+from difflib import SequenceMatcher
+from itertools import product
 
 from fastapi import HTTPException
 from jose import jwt
@@ -60,3 +62,18 @@ def hash_password(password: str):
 
 def verify_password(plain_password: str, hashed_password: str):
     return _pwd_context.verify(plain_password, hashed_password)
+
+
+def is_similar_usernames(user_name: str, search_name: str) -> bool:
+    user_words = user_name.split()
+    search_words = search_name.strip().split()
+
+    if len(search_words) > len(user_words):
+        return False
+
+    matches = sorted(map(
+        lambda words: SequenceMatcher(None, words[0], words[1]).ratio(),
+        product(user_words, search_words),
+    ), reverse=True)[:len(search_words)]
+
+    return sum(matches) / len(matches) > 0.7
