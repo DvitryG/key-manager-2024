@@ -8,12 +8,30 @@ from backend.constants import FILTER_BATCH_SIZE
 _I = TypeVar("_I", bound=SQLModel)
 
 
-async def custom_db_filter(
+async def _get_filtered_batch(
+        n_batch: int,
         db_session: Session,
         table: Type[_I],
         filter_algorithm: callable,
         *where_filters: BinaryExpression,
-        required_count: int | None = None
+) -> list[_I]:
+    return list(filter(
+        filter_algorithm,
+        db_session.exec(
+            select(table)
+            .offset(n_batch * FILTER_BATCH_SIZE)
+            .limit(FILTER_BATCH_SIZE)
+            .where(*where_filters)
+        ).all()))
+
+
+async def get_filtered_items(
+        db_session: Session,
+        table: Type[_I],
+        filter_algorithm: callable,
+        *where_filters: BinaryExpression,
+        offset: int = 0,
+        limit: int | None = None
 ) -> Sequence[_I]:
     """
     Фильтрует набор элементов таблицы по алгоритму
@@ -21,26 +39,66 @@ async def custom_db_filter(
     :param db_session: сессия БД
     :param table: тип таблицы, к которой будет применяться фильтр
     :param filter_algorithm: алгоритм фильтрации, принимает элемент таблицы и возвращает bool
-    :param required_count: сколько элементов нужно найти (по умолчанию все)
     :param where_filters: стандартные фильтры в sql запросе
+    :param offset: сколько элементов нужно пропустить (по умолчанию 0)
+    :param limit: сколько элементов нужно найти (по умолчанию все)
     :return: набор элементов таблицы, прошедших фильтры
     """
     target_items = []
+    skipped_count = 0
 
     items_count = db_session.query(table).count()
     batch_count = items_count // FILTER_BATCH_SIZE + (items_count % FILTER_BATCH_SIZE > 0)
 
     for batch in range(batch_count):
-        if required_count is not None and len(target_items) >= required_count:
+        if limit is not None and len(target_items) >= limit:
             break
-        target_items += filter(
-            filter_algorithm,
-            db_session.exec(
-                select(table)
-                .offset(batch * FILTER_BATCH_SIZE)
-                .limit(FILTER_BATCH_SIZE)
-                .where(*where_filters)
-            ).all()
+        items = await _get_filtered_batch(
+            batch, db_session, table, filter_algorithm, *where_filters
         )
+        not_skipped_items = items[offset - skipped_count:]
+        skipped_count += len(items) - len(not_skipped_items)
+        target_items += not_skipped_items
 
     return target_items
+
+
+async def get_filtered_count(
+        db_session: Session,
+        table: Type[_I],
+        filter_algorithm: callable,
+        *where_filters: BinaryExpression
+) -> int:
+    target_items_count = 0
+
+    items_count = db_session.query(table).count()
+    batch_count = items_count // FILTER_BATCH_SIZE + (items_count % FILTER_BATCH_SIZE > 0)
+
+    for batch in range(batch_count):
+        target_items_count += len(await _get_filtered_batch(
+            batch, db_session, table, filter_algorithm, *where_filters
+        ))
+
+    return target_items_count
+
+
+class FiltersCache:
+    __filters_cache: dict[str, dict] = {}
+
+    @staticmethod
+    def _get_key(filter_data: dict[str, str]) -> str:
+        return ''.join(sorted(
+            f'{str(key)}:{str(value)}' for key, value in filter_data.items()
+        ))
+
+    @classmethod
+    def get(cls, filter_data: dict[str, str]):
+        return cls.__filters_cache.get(cls._get_key(filter_data))
+
+    @classmethod
+    def update(cls, filter_data: dict[str, str], value: dict):
+        cls.__filters_cache.setdefault(cls._get_key(filter_data), {}).update(value)
+
+    @classmethod
+    def clear(cls):
+        cls.__filters_cache.clear()

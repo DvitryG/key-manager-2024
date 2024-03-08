@@ -14,6 +14,7 @@ from backend.models.user import (
     UserInDB,
     UserSession
 )
+from backend.tools.common import FiltersCache
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -77,3 +78,7 @@ def is_similar_usernames(user_name: str, search_name: str) -> bool:
     ), reverse=True)[:len(search_words)]
 
     return sum(matches) / len(matches) > 0.7
+
+
+class UserFiltersCache(FiltersCache):
+    pass
