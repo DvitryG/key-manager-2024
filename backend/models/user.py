@@ -1,7 +1,9 @@
-from typing import Optional
+from typing import Optional, Sequence
 from sqlmodel import Field, SQLModel
 from uuid import UUID, uuid4
 from enum import Enum
+
+from backend.models.common import Pagination
 
 
 class Role(str, Enum):
@@ -49,3 +51,8 @@ class Token(SQLModel):
 class LoginRequest(SQLModel):
     email: str
     password: str
+
+
+class UsersPageResponse(SQLModel):
+    users: Sequence[User]
+    pagination: Pagination

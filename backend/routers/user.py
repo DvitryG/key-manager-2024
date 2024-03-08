@@ -13,20 +13,21 @@ from backend.dependencies.user import (
     get_current_user_session,
     authorize
 )
+from backend.models.common import Pagination
 from backend.models.user import (
     User,
     Token,
     UserInDB,
     LoginRequest,
     Role,
-    UserSession
+    UserSession, UsersPageResponse
 )
-from backend.tools.common import custom_db_filter
+from backend.tools.common import get_filtered_items, get_filtered_count
 from backend.tools.user import (
     hash_password,
     authenticate_user,
     verify_password,
-    is_similar_usernames
+    is_similar_usernames, UserFiltersCache
 )
 
 router = APIRouter(
@@ -42,14 +43,34 @@ async def get_all_users(
         name: Annotated[str | None, Query()] = None,
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
-) -> Sequence[User]:
-    if name:
-        return await custom_db_filter(
+) -> UsersPageResponse:
+    filter_data = {"name": name, "page_size": page_size}
+    cache = UserFiltersCache.get(filter_data)
+    page_count = cache and cache.get('page_count')
+
+    if not page_count:
+        items_count = await get_filtered_count(
             db_session, UserInDB, lambda user: is_similar_usernames(user.name, name)
-        )
-    return db_session.exec(
+        ) if name else db_session.query(UserInDB).count()
+
+        page_count = items_count // page_size + (items_count % page_size > 0)
+        UserFiltersCache.update(filter_data, {'page_count': page_count})
+
+    users = await get_filtered_items(
+        db_session, UserInDB, lambda user: is_similar_usernames(user.name, name),
+        offset=page * page_size, limit=page_size
+    ) if name else db_session.exec(
         select(UserInDB).offset(page * page_size).limit(page_size)
     ).all()
+
+    return UsersPageResponse(
+        users=users,
+        pagination=Pagination(
+            page_size=len(users),
+            pages_count=page_count,
+            current_page=page,
+        )
+    )
 
 
 @router.post("/register")
@@ -70,6 +91,7 @@ async def register(
     )
     db_session.add(user)
     db_session.commit()
+    UserFiltersCache.clear()
 
     return authenticate_user(db_session, email, password)
 
@@ -125,6 +147,7 @@ async def update_users_me(
     current_user.name = name
     db_session.add(current_user)
     db_session.commit()
+    UserFiltersCache.clear()
 
     db_session.refresh(current_user)
     return current_user
@@ -184,6 +207,7 @@ async def update_user_role(
 
     db_session.add(target_user)
     db_session.commit()
+    UserFiltersCache.clear()
 
     db_session.refresh(target_user)
     return target_user
