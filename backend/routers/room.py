@@ -9,7 +9,9 @@ from starlette import status
 
 from backend.dependencies.database import get_db_session
 from backend.dependencies.room import get_room_by_id
+from backend.dependencies.user import get_current_user, authorize
 from backend.models.room import Room, RoomsListResponse
+from backend.models.user import User, Role
 from backend.tools.room import paginate_rooms_list
 
 router = APIRouter(
@@ -50,13 +52,16 @@ async def get_rooms_by_name(
     return rooms
 
 
-
-#TODO:сделать генерацию id в конструкторе
 @router.post("/")
 async def create_room(
+        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         name: Annotated[str, Body(min_length=3, max_length=50)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ) -> UUID:
+
+    if current_user is None:
+        return current_user
+
     room = db_session.exec(select(Room).where(Room.name == name))
     if room.first():
         raise HTTPException(
@@ -81,10 +86,14 @@ async def give_room(room_id: UUID, user_id: UUID):
 
 @router.put("/{room_id}")
 async def set_room_availability(
+        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         room: Annotated[Room, Depends(get_room_by_id)],
         availability: bool,
         db_session: Annotated[Session, Depends(get_db_session)]
 ) -> Room:
+    if current_user is None:
+        return current_user
+
     room.blocked = availability
     db_session.add(room)
     db_session.commit()
@@ -95,9 +104,13 @@ async def set_room_availability(
 
 @router.delete("/{room_id}")
 async def delete_room(
+        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         room: Annotated[Room, Depends(get_room_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ):
+    if current_user is None:
+        return current_user
+
     db_session.delete(room)
     db_session.commit()
 
