@@ -5,6 +5,8 @@ from datetime import date, time
 from uuid import UUID, uuid4
 from enum import Enum
 
+from backend.models.common import Pagination
+
 
 class OrderStatus(str, Enum):
     IN_PROGRESS = "IN_PROGRESS"
@@ -12,22 +14,17 @@ class OrderStatus(str, Enum):
     CLOSED = "CLOSED"
 
 
-class Order(SQLModel, ABC):
+class Order(SQLModel, table=True):
     order_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(index=True)
-    room_id: UUID = Field(index=True)
+    room_id: UUID = Field(index=True, foreign_key="room.room_id")
+    status: OrderStatus = Field(default=OrderStatus.IN_PROGRESS, index=True)
+
+    cyclic: bool = Field(index=True)
+    day: date | None = Field(index=True)
+    week_day: int | None = Field(index=True)
     start_time: time
     end_time: time
-    status: OrderStatus = Field(default=OrderStatus.IN_PROGRESS, index=True)
-    blocked: bool = Field(default=False, index=True)
-
-
-class SimpleOrder(Order, table=True):
-    day: date = Field(index=True)
-
-
-class CyclicOrder(Order, table=True):
-    week_day: int = Field(index=True)
 
 
 class CreateOrderRequest(SQLModel, ABC):
@@ -44,6 +41,6 @@ class CreateCyclicOrderRequest(CreateOrderRequest):
     week_day: int
 
 
-class OrdersListsResponse(SQLModel):
-    simple_orders: Sequence[SimpleOrder]
-    cyclic_orders: Sequence[CyclicOrder]
+class OrdersPageResponse(SQLModel):
+    orders: Sequence[Order]
+    pagination: Pagination
