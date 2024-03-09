@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
-from sqlmodel import SQLModel, Field
 from uuid import UUID, uuid4
+
+from sqlmodel import SQLModel, Field
 
 from backend.models.common import Pagination
 from backend.models.user import User

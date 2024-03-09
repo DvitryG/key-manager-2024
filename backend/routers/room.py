@@ -2,7 +2,6 @@ from typing import Annotated, Sequence
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
-from sqlalchemy import func
 from sqlmodel import Session, select
 from starlette import status
 
@@ -14,7 +13,7 @@ from backend.models.obligation import Obligation
 from backend.models.room import Room, RoomsListResponse
 from backend.models.user import User, Role, UserInDB
 from backend.tools.common import get_filtered_items, get_pages_count_from_cache, get_filtered_count
-from backend.tools.room import paginate_rooms_list, is_similar_room_name, RoomFiltersCache
+from backend.tools.room import is_similar_room_name, RoomFiltersCache
 
 router = APIRouter(
     prefix="/rooms",
@@ -147,6 +146,7 @@ async def delete_room(
         room: Annotated[Room, Depends(get_room_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ):
+
     db_session.delete(room)
     db_session.commit()
     RoomFiltersCache.clear()
