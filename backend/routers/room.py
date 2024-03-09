@@ -13,7 +13,7 @@ from backend.dependencies.user import authorize, get_current_user
 from backend.models.common import Pagination
 from backend.models.obligation import Obligation
 from backend.models.room import Room, RoomsListResponse
-from backend.models.user import User, Role
+from backend.models.user import User, Role, UserInDB
 from backend.tools.common import get_filtered_count, get_filtered_items
 from backend.tools.room import paginate_rooms_list, RoomFiltersCache
 from backend.tools.user import UserFiltersCache, is_similar_usernames
@@ -107,9 +107,9 @@ async def create_room(
 async def give_room(
         current_user: Annotated[User, Depends(get_current_user)],
         room: Annotated[Room, Depends(get_room_by_id)],
-        user: Annotated[User, Depends(get_user_by_id)],
+        user: Annotated[UserInDB, Depends(get_user_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
-) -> Obligation:
+):
     obligation = get_obligation_by_user_id(current_user.user_id, room.room_id, db_session)
 
     obligation.closed = True
@@ -117,11 +117,9 @@ async def give_room(
     db_session.commit()
     db_session.refresh(obligation)
 
-    new_obligation = Obligation(user_id=user.user_id, deadline=obligation.deadline, room_id=room.room_id)
+    new_obligation = Obligation(user_id=user.user_id, deadline=obligation.deadline, room_id=room.room_id, closed=False)
     db_session.add(new_obligation)
     db_session.commit()
-
-    return new_obligation
 
 
 @router.put("/{room_id}", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
