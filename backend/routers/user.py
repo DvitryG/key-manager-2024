@@ -22,7 +22,11 @@ from backend.models.user import (
     Role,
     UserSession, UsersPageResponse
 )
-from backend.tools.common import get_filtered_items, get_filtered_count, get_pages_count_from_cache
+from backend.tools.common import (
+    get_filtered_items,
+    get_filtered_count,
+    get_pages_count_from_cache
+)
 from backend.tools.user import (
     hash_password,
     authenticate_user,
@@ -37,7 +41,9 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(authorize())])
+@router.get("/", dependencies=[Depends(
+    authorize(Role.ADMIN, Role.DEAN)
+)])
 async def get_all_users(
         db_session: Annotated[Session, Depends(get_db_session)],
         name: Annotated[str | None, Query()] = None,
@@ -67,6 +73,24 @@ async def get_all_users(
             current_page=page,
         )
     )
+
+
+@router.get("/search", dependencies=[Depends(authorize())])
+async def search_users(
+        db_session: Annotated[Session, Depends(get_db_session)],
+        name: Annotated[str, Query()],
+        limit: Annotated[int, Query(ge=1, le=100)],
+) -> Sequence[User]:
+    if not name:
+        return []
+
+    users = await get_filtered_items(
+        db_session, UserInDB,
+        lambda user: is_similar_usernames(user.name, name),
+        limit=limit
+    )
+
+    return users
 
 
 @router.post("/register")
