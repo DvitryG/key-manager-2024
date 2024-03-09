@@ -2,7 +2,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy import func
 from sqlmodel import Session, select
 from starlette import status
@@ -10,10 +10,13 @@ from starlette import status
 from backend.dependencies.database import get_db_session
 from backend.dependencies.room import get_room_by_id, get_user_by_id, get_obligation_by_user_id
 from backend.dependencies.user import authorize, get_current_user
+from backend.models.common import Pagination
 from backend.models.obligation import Obligation
 from backend.models.room import Room, RoomsListResponse
 from backend.models.user import User, Role
-from backend.tools.room import paginate_rooms_list
+from backend.tools.common import get_filtered_count, get_filtered_items
+from backend.tools.room import paginate_rooms_list, RoomFiltersCache
+from backend.tools.user import UserFiltersCache, is_similar_usernames
 
 router = APIRouter(
     prefix="/rooms",
@@ -21,13 +24,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
 # TODO:подправить пагинацию
 @router.get("/", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
 async def get_all_rooms(
         db_session: Annotated[Session, Depends(get_db_session)],
         current_page: int = 1,
-        page_size: int = 6,
+        page_size: int = 10,
         blocked: bool | None = None
 ) -> RoomsListResponse:
     params = []
@@ -45,15 +47,40 @@ async def get_all_rooms(
     return rooms
 
 
-# TODO:добавить фильтрацию
 @router.get("/search", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
 async def get_rooms_by_name(
         db_session: Annotated[Session, Depends(get_db_session)],
-        name: str | None = None,
+        name: Annotated[str | None, Query()] = None,
+        page: Annotated[int, Query(ge=0)] = 0,
+        page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> RoomsListResponse:
-    rooms = []
-    return rooms
+    filter_data = {"name": name, "page_size": page_size}
+    cache = UserFiltersCache.get(filter_data)
+    page_count = cache and cache.get('page_count')
 
+    if not page_count:
+        items_count = await get_filtered_count(
+            db_session, Room, lambda room: is_similar_usernames(room.name, name)
+        ) if name else db_session.query(Room).count()
+
+        page_count = items_count // page_size + (items_count % page_size > 0)
+        RoomFiltersCache.update(filter_data, {'page_count': page_count})
+
+    rooms = await get_filtered_items(
+        db_session, Room, lambda user: is_similar_usernames(user.name, name),
+        offset=page * page_size, limit=page_size
+    ) if name else db_session.exec(
+        select(Room).offset(page * page_size).limit(page_size).order_by(Room.name)
+    ).all()
+
+    return RoomsListResponse(
+        rooms=rooms,
+        pagination=Pagination(
+            page_size=len(rooms),
+            pages_count=page_count,
+            current_page=page,
+        )
+    )
 
 @router.post("/", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
 async def create_room(
