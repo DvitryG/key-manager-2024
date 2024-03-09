@@ -9,16 +9,16 @@ from backend.models.common import Pagination
 
 
 class OrderStatus(str, Enum):
-    IN_PROGRESS = "IN_PROGRESS"
-    APPROVED = "APPROVED"
-    CLOSED = "CLOSED"
+    OPENED = "opened"
+    APPROVED = "approved"
+    CLOSED = "closed"
 
 
 class Order(SQLModel, table=True):
     order_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(index=True)
     room_id: UUID = Field(index=True, foreign_key="room.room_id")
-    status: OrderStatus = Field(default=OrderStatus.IN_PROGRESS, index=True)
+    status: OrderStatus = Field(default=OrderStatus.OPENED, index=True)
 
     cyclic: bool = Field(index=True)
     day: date | None = Field(index=True)
