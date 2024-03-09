@@ -16,6 +16,7 @@ class RoomsListResponse(SQLModel):
     rooms: Sequence[Room]
     pagination: Pagination
 
+
 class Response(SQLModel):
     user: User
     room: Room

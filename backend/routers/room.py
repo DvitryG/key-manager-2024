@@ -1,4 +1,3 @@
-# TODO[Dima]:добавить проверку на авторизацию и наличие прав
 from typing import Annotated
 from uuid import UUID
 
@@ -24,24 +23,28 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 # TODO:подправить пагинацию
 @router.get("/", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
 async def get_all_rooms(
         db_session: Annotated[Session, Depends(get_db_session)],
-        current_page: int = 1,
-        page_size: int = 10,
+        current_page: Annotated[int, Query(ge=1)] = 1,
+        page_size: Annotated[int, Query(ge=1, le=100)] = 10,
         blocked: bool | None = None
 ) -> RoomsListResponse:
     params = []
 
     if blocked is not None:
         params.append(Room.blocked == blocked)
-
-    statement = select(Room).where(*params).offset((current_page - 1) * page_size).limit(page_size).order_by(Room.name)
+    rooms_count = 0
+    statement = select(Room).where(*params).offset((current_page-1) * page_size).limit(page_size).order_by(Room.name)
     rooms = db_session.exec(statement).all()
-    rooms_count = len(rooms) if len(params) != 0 else db_session.exec(
-        select(func.count(Room.room_id))
-    ).first()
+    if len(params) != 0:
+        rooms_count = db_session.query(Room).where(Room.blocked == blocked).count()
+    else:
+        rooms_count = db_session.exec(
+            select(func.count(Room.room_id))
+        ).first()
 
     rooms = await paginate_rooms_list(rooms, current_page, page_size, rooms_count)
     return rooms
@@ -82,6 +85,7 @@ async def get_rooms_by_name(
         )
     )
 
+
 @router.post("/", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
 async def create_room(
         name: Annotated[str, Body(min_length=3, max_length=50)],
@@ -110,15 +114,18 @@ async def give_room(
         user: Annotated[UserInDB, Depends(get_user_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ):
-    obligation = get_obligation_by_user_id(current_user.user_id, room.room_id, db_session)
+    current_obligation = get_obligation_by_user_id(current_user.user_id, room.room_id, db_session)
 
-    obligation.closed = True
-    db_session.add(obligation)
-    db_session.commit()
-    db_session.refresh(obligation)
-
-    new_obligation = Obligation(user_id=user.user_id, deadline=obligation.deadline, room_id=room.room_id, closed=False)
+    new_obligation = Obligation(
+        user_id=user.user_id,
+        deadline=current_obligation.deadline,
+        room_id=room.room_id,
+        closed=False
+    )
     db_session.add(new_obligation)
+    db_session.commit()
+
+    db_session.delete(current_obligation)
     db_session.commit()
 
 
