@@ -1,4 +1,6 @@
 import math
+from difflib import SequenceMatcher
+from itertools import product
 from typing import Annotated, Sequence
 
 from fastapi import Body, Query
@@ -23,6 +25,10 @@ async def paginate_rooms_list(
         rooms=rooms,
         pagination=pagination
     )
+
+
+def is_similar_room_name(room_name: str, search_name: str) -> bool:
+    return SequenceMatcher(None, room_name, search_name).ratio() > 0.6
 
 
 class RoomFiltersCache(FiltersCache):
