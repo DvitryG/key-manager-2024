@@ -2,14 +2,15 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Body, Query
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy import func
 from sqlmodel import Session, select
 from starlette import status
 
 from backend.dependencies.database import get_db_session
-from backend.dependencies.room import get_room_by_id
-from backend.dependencies.user import get_current_user, authorize
+from backend.dependencies.room import get_room_by_id, get_user_by_id, get_obligation_by_user_id
+from backend.dependencies.user import authorize, get_current_user
+from backend.models.obligation import Obligation
 from backend.models.room import Room, RoomsListResponse
 from backend.models.user import User, Role
 from backend.tools.room import paginate_rooms_list
@@ -21,7 +22,8 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+# TODO:подправить пагинацию
+@router.get("/", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
 async def get_all_rooms(
         db_session: Annotated[Session, Depends(get_db_session)],
         current_page: int = 1,
@@ -43,7 +45,8 @@ async def get_all_rooms(
     return rooms
 
 
-@router.get("/search")
+# TODO:добавить фильтрацию
+@router.get("/search", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
 async def get_rooms_by_name(
         db_session: Annotated[Session, Depends(get_db_session)],
         name: str | None = None,
@@ -52,16 +55,11 @@ async def get_rooms_by_name(
     return rooms
 
 
-@router.post("/")
+@router.post("/", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
 async def create_room(
-        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         name: Annotated[str, Body(min_length=3, max_length=50)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ) -> UUID:
-
-    if current_user is None:
-        return current_user
-
     room = db_session.exec(select(Room).where(Room.name == name))
     if room.first():
         raise HTTPException(
@@ -76,24 +74,35 @@ async def create_room(
     return room.room_id
 
 
-# TODO:если room_id не найден-> выкинуть ошибку
-@router.post("/{room_id}/give/{user_id}")
-async def give_room(room_id: UUID, user_id: UUID):
-    # если user_id не найден-> выкинуть ошибку
+@router.post("/{room_id}/give/{user_id}",
+             dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))]
+             )
+async def give_room(
+        current_user: Annotated[User, Depends(get_current_user)],
+        room: Annotated[Room, Depends(get_room_by_id)],
+        user: Annotated[User, Depends(get_user_by_id)],
+        db_session: Annotated[Session, Depends(get_db_session)]
+) -> Obligation:
+    obligation = get_obligation_by_user_id(current_user.user_id, room.room_id, db_session)
 
-    pass
+    obligation.closed = True
+    db_session.add(obligation)
+    db_session.commit()
+    db_session.refresh(obligation)
+
+    new_obligation = Obligation(user_id=user.user_id, deadline=obligation.deadline, room_id=room.room_id)
+    db_session.add(new_obligation)
+    db_session.commit()
+
+    return new_obligation
 
 
-@router.put("/{room_id}")
+@router.put("/{room_id}", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
 async def set_room_availability(
-        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         room: Annotated[Room, Depends(get_room_by_id)],
         availability: bool,
         db_session: Annotated[Session, Depends(get_db_session)]
 ) -> Room:
-    if current_user is None:
-        return current_user
-
     room.blocked = availability
     db_session.add(room)
     db_session.commit()
@@ -102,17 +111,10 @@ async def set_room_availability(
     return room
 
 
-@router.delete("/{room_id}")
+@router.delete("/{room_id}", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
 async def delete_room(
-        current_user: Annotated[User, Depends(authorize(Role.ADMIN, Role.DEAN))],
         room: Annotated[Room, Depends(get_room_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ):
-    if current_user is None:
-        return current_user
-
     db_session.delete(room)
     db_session.commit()
-
-
-
