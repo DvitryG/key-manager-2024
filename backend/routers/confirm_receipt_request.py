@@ -7,11 +7,9 @@ from sqlmodel import Session, select
 from starlette import status
 
 from backend.dependencies.database import get_db_session
-from backend.dependencies.order import get_order_by_id
 from backend.dependencies.user import authorize, get_current_user
 from backend.models.confirm_receipt_request import ConfirmReceiptRequest
 from backend.models.user import User
-from backend.tools.obligation import create_new_obligation
 
 router = APIRouter(
     prefix="/confirm_receipt_requests",
@@ -51,4 +49,3 @@ async def confirm_receipt(
     request.confirmed = True
     db_session.add(request)
     db_session.commit()
-
