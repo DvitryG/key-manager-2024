@@ -22,7 +22,7 @@ from backend.models.user import (
     Role,
     UserSession, UsersPageResponse
 )
-from backend.tools.common import get_filtered_items, get_filtered_count
+from backend.tools.common import get_filtered_items, get_filtered_count, get_pages_count_from_cache
 from backend.tools.user import (
     hash_password,
     authenticate_user,
@@ -44,18 +44,6 @@ async def get_all_users(
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> UsersPageResponse:
-    filter_data = {"name": name, "page_size": page_size}
-    cache = UserFiltersCache.get(filter_data)
-    page_count = cache and cache.get('page_count')
-
-    if not page_count:
-        items_count = await get_filtered_count(
-            db_session, UserInDB, lambda user: is_similar_usernames(user.name, name)
-        ) if name else db_session.query(UserInDB).count()
-
-        page_count = items_count // page_size + (items_count % page_size > 0)
-        UserFiltersCache.update(filter_data, {'page_count': page_count})
-
     users = await get_filtered_items(
         db_session, UserInDB, lambda user: is_similar_usernames(user.name, name),
         offset=page * page_size, limit=page_size
@@ -63,11 +51,19 @@ async def get_all_users(
         select(UserInDB).offset(page * page_size).limit(page_size)
     ).all()
 
+    pages_count = await get_pages_count_from_cache(
+        lambda: get_filtered_count(
+            db_session, UserInDB, lambda user: is_similar_usernames(user.name, name)
+        ) if name else db_session.query(UserInDB).count(),
+        UserFiltersCache,
+        {"name": name, "page_size": page_size}
+    )
+
     return UsersPageResponse(
         users=users,
         pagination=Pagination(
             page_size=len(users),
-            pages_count=page_count,
+            pages_count=pages_count,
             current_page=page,
         )
     )

@@ -1,4 +1,4 @@
-from typing import TypeVar, Sequence, Type
+from typing import TypeVar, Sequence, Type, Coroutine
 
 from sqlalchemy import BinaryExpression
 from sqlmodel import SQLModel, Session, select
@@ -102,3 +102,21 @@ class FiltersCache:
     @classmethod
     def clear(cls):
         cls.__filters_cache.clear()
+
+
+async def get_pages_count_from_cache(
+        get_items_count: callable,
+        cache: Type[FiltersCache],
+        filter_data: dict,
+) -> int:
+    cache_data = cache.get(filter_data)
+    page_count = cache_data and cache_data.get('page_count')
+
+    if not page_count:
+        items_count = get_items_count()
+        if isinstance(items_count, Coroutine):
+            items_count = await items_count
+        page_count = items_count // filter_data['page_size'] + (items_count % filter_data['page_size'] > 0)
+        cache.update(filter_data, {'page_count': page_count})
+
+    return page_count
