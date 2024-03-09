@@ -19,9 +19,9 @@ async def _get_filtered_batch(
         filter_algorithm,
         db_session.exec(
             select(table)
+            .where(*where_filters)
             .offset(n_batch * FILTER_BATCH_SIZE)
             .limit(FILTER_BATCH_SIZE)
-            .where(*where_filters)
         ).all()))
 
 
@@ -46,19 +46,25 @@ async def get_filtered_items(
     """
     target_items = []
     skipped_count = 0
+    remained_count = limit
 
     items_count = db_session.query(table).count()
     batch_count = items_count // FILTER_BATCH_SIZE + (items_count % FILTER_BATCH_SIZE > 0)
 
     for batch in range(batch_count):
-        if limit is not None and len(target_items) >= limit:
+        if limit is not None and remained_count <= 0:
             break
         items = await _get_filtered_batch(
             batch, db_session, table, filter_algorithm, *where_filters
         )
         not_skipped_items = items[offset - skipped_count:]
         skipped_count += len(items) - len(not_skipped_items)
-        target_items += not_skipped_items
+        if limit:
+            remained_count -= len(not_skipped_items)
+        if limit is not None and remained_count < 0:
+            target_items += not_skipped_items[:remained_count]
+        else:
+            target_items += not_skipped_items
 
     return target_items
 
