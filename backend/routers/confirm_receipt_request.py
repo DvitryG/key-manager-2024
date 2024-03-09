@@ -3,7 +3,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
+from sqlmodel import Session, select
 from starlette import status
 
 from backend.dependencies.database import get_db_session
@@ -27,7 +27,10 @@ async def get_my_confirm_receipt_requests(
         db_session: Annotated[Session, Depends(get_db_session)],
         current_user: Annotated[User, Depends(get_current_user)]
 ) -> list[ConfirmReceiptRequest]:
-    requests = db_session.get(ConfirmReceiptRequest, current_user.user_id).all()
+    requests = db_session.exec(select(ConfirmReceiptRequest)
+                               .where(ConfirmReceiptRequest.user_id == current_user.user_id,
+                                      ConfirmReceiptRequest.confirmed == False)
+                               ).all()
     return requests
 
 
@@ -48,17 +51,4 @@ async def confirm_receipt(
     request.confirmed = True
     db_session.add(request)
     db_session.commit()
-
-    # ищем заявку по order_id указанного в request
-    order = get_order_by_id(db_session, request.order_id)
-    # создаем новое обязательство для пользователя с user_id указанным в request
-    new_obligation = create_new_obligation(
-        db_session,
-        order.user_id,
-        order.room_id,
-        order.day,
-        order.end_time
-    )
-
-    return new_obligation
 

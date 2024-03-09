@@ -1,12 +1,13 @@
 from typing import Annotated
 from uuid import UUID
-from fastapi import APIRouter, Depends
-from sqlmodel import Session
+from fastapi import APIRouter, Depends, Query
+from sqlmodel import Session, select
 
 from backend.dependencies.database import get_db_session
 from backend.dependencies.user import authorize
 from backend.models.confirm_return_request import ConfirmReturnRequest
 from backend.models.user import Role
+from backend.tools.common import get_filtered_items
 
 router = APIRouter(
     prefix="/confirm_return_requests",
@@ -20,8 +21,12 @@ router = APIRouter(
 ])
 async def get_all_confirm_return_requests(
         db_session: Annotated[Session, Depends(get_db_session)],
-
+        name: Annotated[str | None, Query()] = None,
+        room_name: Annotated[str | None, Query()] = None,
+        page: Annotated[int, Query(ge=0)] = 0,
+        page_size: Annotated[int, Query(ge=1, le=100)] = 10,
 ) -> list[ConfirmReturnRequest]:
+
     pass
 
 

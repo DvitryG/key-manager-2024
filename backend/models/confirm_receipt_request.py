@@ -1,12 +1,11 @@
-from datetime import date, time
-from typing import Optional
+from uuid import UUID, uuid4
 
 from sqlmodel import SQLModel, Field
-from uuid import UUID
 
 
 class ConfirmReceiptRequest(SQLModel, table=True):
-    user_id: UUID = Field(primary_key=True)
-    room_id: UUID = Field(primary_key=True)
-    order_id: UUID = Field(index=True, foreign_key="order.order_id")
+    request_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID
+    room_id: UUID
+    order_id: UUID
     confirmed: bool = False
