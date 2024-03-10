@@ -1,5 +1,7 @@
 import time
 from fastapi import FastAPI, Request
+from starlette.middleware.cors import CORSMiddleware
+
 from backend.routers import (
     user,
     room,
@@ -13,6 +15,14 @@ from backend import database
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
 
 @app.middleware("http")
