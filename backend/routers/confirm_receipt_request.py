@@ -68,7 +68,8 @@ async def get_my_confirm_receipt_requests(
 async def confirm_receipt(
         db_session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(get_current_user)],
-        request_id: UUID
+        request_id: UUID,
+        confirm: bool
 ) -> bool:
     delete_user_irrelevant_confirm_receipt_requests(
         db_session, user, request_id
@@ -82,14 +83,15 @@ async def confirm_receipt(
     if request.user_id != user.user_id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    room = db_session.get(Room, request.room_id)
+    if confirm:
+        room = db_session.get(Room, request.room_id)
 
-    if not room:
-        raise HTTPException(status_code=404, detail="Room not found")
+        if not room:
+            raise HTTPException(status_code=404, detail="Room not found")
 
-    room.user_id = user.user_id
+        room.user_id = user.user_id
+        db_session.add(room)
 
-    db_session.add(room)
     db_session.delete(request)
     db_session.commit()
 
