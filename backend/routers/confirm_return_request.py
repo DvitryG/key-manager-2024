@@ -1,5 +1,6 @@
 from typing import Annotated
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlmodel import Session, select
 from starlette import status
@@ -8,10 +9,8 @@ from backend.dependencies.database import get_db_session
 from backend.dependencies.user import authorize
 from backend.models.common import Pagination
 from backend.models.confirm_receipt_request import ConfirmReceiptRequest
-from backend.models.confirm_return_request import ConfirmReturnRequest
 from backend.models.user import Role
-from backend.tools.common import get_filtered_items, get_pages_count_from_cache, get_filtered_count
-from backend.tools.obligation import RequestsCache, RequestsListResponse
+from backend.models.confirm_receipt_request import RequestsListResponse
 
 router = APIRouter(
     prefix="/confirm_return_requests",

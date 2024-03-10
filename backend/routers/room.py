@@ -6,7 +6,9 @@ from sqlmodel import Session, select
 from starlette import status
 
 from backend.dependencies.database import get_db_session
-from backend.dependencies.room import get_room_by_id, get_user_by_id, get_obligation_by_user_id
+from backend.dependencies.room import get_room_by_id
+from backend.dependencies.obligation import get_current_user_obligation
+from backend.dependencies.user import get_user_by_id
 from backend.dependencies.user import authorize, get_current_user
 from backend.models.common import Pagination
 from backend.models.obligation import Obligation
@@ -22,7 +24,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))])
+@router.get("/", dependencies=[Depends(authorize(Role.DEAN, Role.ADMIN))])
 async def get_all_rooms(
         db_session: Annotated[Session, Depends(get_db_session)],
         name: Annotated[str | None, Query()] = None,
@@ -98,20 +100,21 @@ async def create_room(
     room = Room(name=name)
     db_session.add(room)
     db_session.commit()
+    db_session.refresh(room)
     RoomFiltersCache.clear()
     return room.room_id
 
 
-@router.post("/{room_id}/give/{user_id}",
-             dependencies=[Depends(authorize(Role.STUDENT, Role.TEACHER, Role.DEAN, Role.ADMIN))]
-             )
+@router.post("/{room_id}/give/{user_id}", dependencies=[Depends(
+    authorize(Role.STUDENT, Role.TEACHER))
+])
 async def give_room(
         current_user: Annotated[User, Depends(get_current_user)],
         room: Annotated[Room, Depends(get_room_by_id)],
         user: Annotated[UserInDB, Depends(get_user_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ):
-    current_obligation = get_obligation_by_user_id(current_user.user_id, room.room_id, db_session)
+    current_obligation = get_current_user_obligation(current_user.user_id, room.room_id, db_session)
 
     new_obligation = Obligation(
         user_id=user.user_id,
