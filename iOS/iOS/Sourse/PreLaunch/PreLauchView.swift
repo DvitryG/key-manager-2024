@@ -1,13 +1,12 @@
 //
-//  ContentView.swift
+//  PreLauchView.swift
 //  iOS
-//
-//  Created by HITSStudent on 09.03.2024.
 //
 
 import SwiftUI
 
-struct ContentView: View {
+struct PreLauchView: View {
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -15,10 +14,12 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
         }
-        .padding()
     }
 }
 
-#Preview {
-    ContentView()
+struct PreLauchView_Previews: PreviewProvider {
+    static var previews: some View {
+        PreLauchView()
+    }
 }
+
