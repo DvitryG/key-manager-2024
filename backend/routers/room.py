@@ -15,6 +15,7 @@ from backend.models.obligation import Obligation
 from backend.models.room import Room, RoomsListResponse
 from backend.models.user import User, Role, UserInDB
 from backend.tools.common import get_filtered_items, get_pages_count_from_cache, get_filtered_count
+from backend.tools.confirm_receipt_request import create_new_receipt_request
 from backend.tools.room import is_similar_room_name, RoomFiltersCache
 
 router = APIRouter(
@@ -90,8 +91,8 @@ async def create_room(
         name: Annotated[str, Body(min_length=3, max_length=50)],
         db_session: Annotated[Session, Depends(get_db_session)]
 ) -> UUID:
-    room = db_session.exec(select(Room).where(Room.name == name))
-    if room.first():
+    overlapping_room = db_session.exec(select(Room).where(Room.name == name))
+    if overlapping_room.first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"The room with name:{name} already exists in the system."
@@ -113,20 +114,16 @@ async def give_room(
         room: Annotated[Room, Depends(get_room_by_id)],
         user: Annotated[UserInDB, Depends(get_user_by_id)],
         db_session: Annotated[Session, Depends(get_db_session)]
-):
-    current_obligation = get_current_user_obligation(current_user.user_id, room.room_id, db_session)
+) -> UUID:
 
-    new_obligation = Obligation(
-        user_id=user.user_id,
-        deadline=current_obligation.deadline,
-        room_id=room.room_id,
-        closed=False
+    get_current_user_obligation(current_user.user_id, room.room_id, db_session)
+
+    new_receipt_request = create_new_receipt_request(
+        user.user_id,
+        room.room_id,
+        db_session
     )
-    db_session.add(new_obligation)
-    db_session.commit()
-
-    db_session.delete(current_obligation)
-    db_session.commit()
+    return new_receipt_request.request_id
 
 
 @router.put("/{room_id}", dependencies=[Depends(authorize(Role.ADMIN, Role.DEAN))])
