@@ -10,6 +10,7 @@ class Room(SQLModel, table=True):
     room_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
     user_id: Optional[UUID] = Field(default=None, index=True, foreign_key="userindb.user_id")
+    blocked: bool = Field(default=False, index=True)
 
 
 class CurrentRoomUserResponse(SQLModel):

@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
+from jose.jwt import get_unverified_claims
 from password_validator import PasswordValidator
 from sqlmodel import Session, select
 from starlette import status
@@ -25,16 +26,22 @@ def get_current_user_and_session(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        session_id = payload.get("sub") and UUID(payload.get("sub"))
-        if session_id is None:
-            raise credentials_exception
-    except JWTError:
+
+    claims = get_unverified_claims(token)
+    session_id = claims.get('sub') and UUID(claims.get('sub'))
+
+    if session_id is None:
         raise credentials_exception
 
     user_session = db_session.get(UserSession, session_id)
     if user_session is None:
+        raise credentials_exception
+
+    try:
+        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        db_session.delete(user_session)
+        db_session.commit()
         raise credentials_exception
 
     user = db_session.get(UserInDB, user_session.user_id)
