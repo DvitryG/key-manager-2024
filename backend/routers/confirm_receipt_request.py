@@ -12,7 +12,7 @@ from backend.models.room import Room
 from backend.models.user import Role, User, UserInDB
 from backend.tools.confirm_receipt_request import (
     update_my_confirm_receipt_requests,
-    delete_user_old_confirm_receipt_requests
+    delete_user_irrelevant_confirm_receipt_requests
 )
 
 router = APIRouter(
@@ -70,7 +70,7 @@ async def confirm_receipt(
         user: Annotated[User, Depends(get_current_user)],
         request_id: UUID
 ) -> bool:
-    delete_user_old_confirm_receipt_requests(
+    delete_user_irrelevant_confirm_receipt_requests(
         db_session, user, request_id
     )
 

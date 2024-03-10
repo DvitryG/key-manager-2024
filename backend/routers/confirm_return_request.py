@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 
 from backend.dependencies.database import get_db_session
-from backend.dependencies.order import get_room_by_id
+from backend.dependencies.room import get_room_by_id
 from backend.dependencies.user import authorize
 from backend.models.common import Pagination
 from backend.models.confirm_return_request import ConfirmReturnRequestPage
@@ -74,6 +74,9 @@ async def confirm_return(
         db_session: Annotated[Session, Depends(get_db_session)],
         room: Annotated[Room, Depends(get_room_by_id)],
 ):
+    if room:
+        return True
+
     room.user_id = None
 
     db_session.add(room)

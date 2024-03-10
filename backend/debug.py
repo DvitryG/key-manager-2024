@@ -15,55 +15,79 @@ from backend.models.user import UserInDB, Role
 from backend.tools.user import hash_password
 
 
+def gen_fake_users(session: Session, fake: Faker, multiplier=1):
+    users = []
+    password_hash = hash_password('P@ssw0rd')
+
+    admin = UserInDB(
+        name=fake.name(),
+        email='admin@hits.ru',
+        password_hash=password_hash,
+    )
+    admin.roles = {Role.ADMIN}
+    session.add(admin)
+
+    for _ in range(100 * multiplier):
+        user = UserInDB(
+            name=fake.name(),
+            email=fake.email(domain="mail.ru"),
+            password_hash=password_hash,
+        )
+        user.roles = set(random.choices(
+            [
+                Role.ADMIN, Role.DEAN, Role.TEACHER, Role.STUDENT,
+            ], k=2)
+        )
+        users.append(user)
+        session.add(user)
+    session.commit()
+
+    return users
+
+
+def gen_fake_rooms(session: Session, fake: Faker, multiplier=1):
+    rooms = []
+
+    for _ in range(10 * multiplier):
+        room = Room(
+            name=fake.numerify('### (%)'),
+            blocked=fake.boolean(chance_of_getting_true=10)
+        )
+        rooms.append(room)
+        session.add(room)
+    session.commit()
+
+    return rooms
+
+
+def get_start_end_datetime(fake, default_datetime):
+    if fake.boolean():
+        start_datetime = default_datetime + datetime.timedelta(
+            days=fake.random_int(min=0, max=5),
+            hours=fake.random_int(min=0, max=12),
+        )
+    else:
+        start_datetime = default_datetime - datetime.timedelta(
+            days=fake.random_int(min=0, max=14),
+            hours=fake.random_int(min=0, max=12),
+        )
+    end_datetime = start_datetime + datetime.timedelta(minutes=90)
+    return start_datetime, end_datetime
+
+
 def gen_fake_data(multiplier=1):
     fake = Faker('ru_RU')
 
     with Session(db_engine) as session:
-        users = []
-        rooms = []
-
-        for _ in range(100 * multiplier):
-            user = UserInDB(
-                name=fake.name(),
-                email=fake.email(domain="mail.ru"),
-                password_hash=hash_password('P@ssw0rd'),
-            )
-            user.roles = set(random.choices(
-                [
-                    Role.ADMIN, Role.DEAN, Role.TEACHER, Role.STUDENT,
-                ], k=2)
-            )
-            users.append(user)
-            session.add(user)
-        session.commit()
-
-        for _ in range(10 * multiplier):
-            room = Room(
-                name=fake.numerify('### (%)'),
-                blocked=fake.boolean(chance_of_getting_true=10)
-            )
-            rooms.append(room)
-            session.add(room)
-        session.commit()
+        users = gen_fake_users(session, fake, multiplier)
+        rooms = gen_fake_rooms(session, fake, multiplier)
 
         now = datetime.datetime.now()
         for user in users:
             orders = []
-            default_datetime = now.replace(
-                hour=20, minute=0, second=0
-            )
+            default_datetime = now.replace(hour=20, minute=0, second=0)
             for _ in range(fake.random_int(min=0, max=5)):
-                if fake.boolean():
-                    start_datetime = default_datetime + datetime.timedelta(
-                        days=fake.random_int(min=0, max=5),
-                        hours=fake.random_int(min=0, max=12),
-                    )
-                else:
-                    start_datetime = default_datetime - datetime.timedelta(
-                        days=fake.random_int(min=0, max=14),
-                        hours=fake.random_int(min=0, max=12),
-                    )
-                end_datetime = start_datetime + datetime.timedelta(minutes=90)
+                start_datetime, end_datetime = get_start_end_datetime(fake, default_datetime)
                 is_cyclic = fake.boolean(chance_of_getting_true=30)
                 room = random.choice(rooms)
                 order = Order(
@@ -80,10 +104,7 @@ def gen_fake_data(multiplier=1):
                     start_time=start_datetime.time(),
                     end_time=end_datetime.time()
                 )
-                if order.cyclic or order.status == OrderStatus.CLOSED:
-                    room.user_id = user.user_id
-                    session.add(room)
-                elif order.status == OrderStatus.APPROVED and start_datetime < now < end_datetime:
+                if order.status == OrderStatus.APPROVED and start_datetime < now < end_datetime:
                     request = ConfirmReceiptRequest(
                         user_id=user.user_id,
                         room_id=room.room_id,

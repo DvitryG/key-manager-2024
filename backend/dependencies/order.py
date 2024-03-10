@@ -1,4 +1,4 @@
-from datetime import time, date, datetime, timezone
+from datetime import time, date, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -7,7 +7,6 @@ from sqlmodel import Session
 
 from backend.dependencies.database import get_db_session
 from backend.models.order import Order
-from backend.models.room import Room
 
 
 def get_order_by_id(
@@ -55,20 +54,3 @@ def get_valid_day_and_time(
     if day == now.date() and start_time < now.time():
         raise HTTPException(status_code=400, detail="Time must be in the future")
     return day, start_time, end_time
-
-
-def get_room_by_id(
-    db_session: Annotated[Session, Depends(get_db_session)],
-    room_id: UUID
-):
-    room = db_session.get(Room, room_id)
-    if not room:
-        raise HTTPException(status_code=404, detail="Room not found")
-    return room
-
-
-def get_room_by_id_in_body(
-    db_session: Annotated[Session, Depends(get_db_session)],
-    room_id: Annotated[UUID, Body()]
-):
-    return get_room_by_id(db_session, room_id)
