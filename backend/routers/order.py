@@ -7,23 +7,22 @@ from sqlmodel import Session, select, or_
 from backend.dependencies.database import get_db_session
 from backend.dependencies.order import (
     get_valid_time_range,
-    get_verified_room_id,
+    get_room_by_id_in_body,
     get_valid_week_day,
-    get_valid_day,
-    get_order_by_id
+    get_order_by_id, get_valid_day_and_time
 )
 from backend.dependencies.user import get_current_user, authorize
 from backend.models.common import Pagination
 from backend.models.room import Room
 
-from backend.models.user import User, Role
+from backend.models.user import User, Role, UserInDB
 from backend.models.order import (
     Order,
     OrderStatus,
-    OrdersPageResponse
+    OrdersPageResponse, OrderResponse
 )
 from backend.tools.common import get_pages_count_from_cache
-from backend.tools.order import OrderFiltersCache
+from backend.tools.order import OrderFiltersCache, update_orders_status
 
 router = APIRouter(
     prefix="/orders",
@@ -43,7 +42,14 @@ async def get_my_orders(
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> OrdersPageResponse:
-    order_filters = [Order.user_id == user.user_id]
+    update_orders_status(db_session, Order.user_id == user.user_id)
+
+    order_filters = [
+        Order.user_id == UserInDB.user_id,
+        Order.room_id == Room.room_id,
+        Order.user_id == user.user_id,
+        Order.status != OrderStatus.CLOSED
+    ]
 
     if day:
         order_filters.append(or_(
@@ -54,14 +60,14 @@ async def get_my_orders(
     if room_id:
         order_filters.append(Order.room_id == room_id)
 
-    orders = db_session.exec(
-        select(Order)
-        .offset(page * page_size).limit(page_size)
+    result = db_session.exec(
+        select(Order, UserInDB, Room)
         .where(*order_filters)
+        .offset(page * page_size).limit(page_size)
     ).all()
 
     pages_count = await get_pages_count_from_cache(
-        lambda: db_session.query(Order).where(*order_filters).count(),
+        lambda: db_session.query(Order, UserInDB, Room).where(*order_filters).count(),
         OrderFiltersCache,
         {
             "day": day,
@@ -69,6 +75,14 @@ async def get_my_orders(
             "page_size": page_size,
         }
     )
+
+    orders = []
+    for order, user, room in result:
+        orders.append(OrderResponse(
+            **order.model_dump(exclude={"user_id", "room_id"}),
+            user=user,
+            room=room,
+        ))
 
     return OrdersPageResponse(
         orders=orders,
@@ -93,7 +107,12 @@ async def get_all_orders(
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> OrdersPageResponse:
-    order_filters = []
+    update_orders_status(db_session)
+
+    order_filters = [
+        Order.user_id == UserInDB.user_id,
+        Order.room_id == Room.room_id
+    ]
 
     if user_id:
         order_filters.append(Order.user_id == str(user_id))
@@ -114,18 +133,21 @@ async def get_all_orders(
         order_filters.append(Order.room_id == room_id)
 
     result = db_session.exec(
-        select(Order, Room)
-        .where(Order.room_id == Room.room_id)
-        .offset(page * page_size).limit(page_size)
+        select(Order, UserInDB, Room)
         .where(*order_filters)
+        .offset(page * page_size).limit(page_size)
     ).all()
 
-    orders = tuple(zip(*result))[0] if result else []
+    orders = []
+    for order, user, room in result:
+        orders.append(OrderResponse(
+            **order.model_dump(exclude={"user_id", "room_id"}),
+            user=user,
+            room=room,
+        ))
 
     pages_count = await get_pages_count_from_cache(
-        lambda: db_session.query(Order, Room).where(
-            Order.room_id == Room.room_id, *order_filters
-        ).count(),
+        lambda: db_session.query(Order, UserInDB, Room).where(*order_filters).count(),
         OrderFiltersCache,
         {
             "day": day,
@@ -153,16 +175,20 @@ async def get_all_orders(
 async def create_simple_order(
         db_session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(get_current_user)],
-        room_id: Annotated[UUID, Depends(get_verified_room_id)],
-        time_range: Annotated[tuple[time, time], Depends(get_valid_time_range)],
-        day: Annotated[date, Depends(get_valid_day)],
+        room: Annotated[Room, Depends(get_room_by_id_in_body)],
+        day_and_time: Annotated[
+            tuple[date, time, time],
+            Depends(get_valid_day_and_time)
+        ],
 ) -> Order:
-    start_time, end_time = time_range
+    update_orders_status(db_session)
+
+    day, start_time, end_time = day_and_time
 
     overlapping_order = db_session.exec(
         select(Order).where(
             Order.status == OrderStatus.APPROVED,
-            Order.room_id == room_id,
+            Order.room_id == room.user_id,
             or_(
                 Order.week_day == day.weekday(),
                 Order.day == day
@@ -177,7 +203,7 @@ async def create_simple_order(
 
     new_order = Order(
         user_id=user.user_id,
-        room_id=room_id,
+        room_id=room.room_id,
         cyclic=False,
         day=day,
         start_time=start_time,
@@ -197,10 +223,12 @@ async def create_simple_order(
 async def create_cyclic_order(
         db_session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(get_current_user)],
-        room_id: Annotated[UUID, Depends(get_verified_room_id)],
+        room_id: Annotated[UUID, Depends(get_room_by_id_in_body)],
         time_range: Annotated[tuple[time, time], Depends(get_valid_time_range)],
         week_day: Annotated[int, Depends(get_valid_week_day)],
 ) -> Order:
+    update_orders_status(db_session)
+
     start_time, end_time = time_range
 
     overlapping_order = db_session.exec(
@@ -238,7 +266,9 @@ async def create_cyclic_order(
 async def approve_order(
         db_session: Annotated[Session, Depends(get_db_session)],
         order: Annotated[Order, Depends(get_order_by_id)],
-):
+) -> bool:
+    update_orders_status(db_session)
+
     if order.status != OrderStatus.OPENED:
         raise HTTPException(status_code=400, detail="The order is already approved or closed")
 
@@ -246,6 +276,8 @@ async def approve_order(
     db_session.add(order)
     db_session.commit()
     OrderFiltersCache.clear()
+
+    return True
 
 
 @router.put("/{order_id}/close", dependencies=[Depends(
@@ -255,9 +287,11 @@ async def close_order(
         db_session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(get_current_user)],
         order: Annotated[Order, Depends(get_order_by_id)],
-):
+) -> bool:
     if order.user_id != user.user_id and not user.roles & {Role.ADMIN, Role.DEAN}:
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    update_orders_status(db_session)
 
     if order.status == OrderStatus.CLOSED:
         raise HTTPException(status_code=400, detail="The order is already closed")
@@ -266,3 +300,5 @@ async def close_order(
     db_session.add(order)
     db_session.commit()
     OrderFiltersCache.clear()
+
+    return True

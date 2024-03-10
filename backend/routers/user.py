@@ -20,7 +20,7 @@ from backend.models.user import (
     UserInDB,
     LoginRequest,
     Role,
-    UserSession, UsersPageResponse
+    UserSession, UsersPageResponse, UserResponse
 )
 from backend.tools.common import (
     get_filtered_items,
@@ -50,16 +50,23 @@ async def get_all_users(
         page: Annotated[int, Query(ge=0)] = 0,
         page_size: Annotated[int, Query(ge=1, le=100)] = 10
 ) -> UsersPageResponse:
-    users = await get_filtered_items(
-        db_session, UserInDB, lambda user: is_similar_usernames(user.name, name),
+    result = await get_filtered_items(
+        db_session, UserInDB, lambda user_in_db: is_similar_usernames(user_in_db.name, name),
         offset=page * page_size, limit=page_size
     ) if name else db_session.exec(
         select(UserInDB).offset(page * page_size).limit(page_size)
     ).all()
 
+    users = []
+    for user in result:
+        users.append(UserResponse(
+            **user.model_dump(exclude={'password_hash', 'roles_str'}),
+            roles=user.roles
+        ))
+
     pages_count = await get_pages_count_from_cache(
         lambda: get_filtered_count(
-            db_session, UserInDB, lambda user: is_similar_usernames(user.name, name)
+            db_session, UserInDB, lambda user_in_db: is_similar_usernames(user.name, name)
         ) if name else db_session.query(UserInDB).count(),
         UserFiltersCache,
         {"name": name, "page_size": page_size}
@@ -80,15 +87,22 @@ async def search_users(
         db_session: Annotated[Session, Depends(get_db_session)],
         name: Annotated[str, Query()],
         limit: Annotated[int, Query(ge=1, le=100)],
-) -> Sequence[User]:
+) -> Sequence[UserResponse]:
     if not name:
         return []
 
-    users = await get_filtered_items(
+    result = await get_filtered_items(
         db_session, UserInDB,
-        lambda user: is_similar_usernames(user.name, name),
+        lambda user_in_db: is_similar_usernames(user_in_db.name, name),
         limit=limit
     )
+
+    users = []
+    for user in result:
+        users.append(UserResponse(
+            **user.model_dump(exclude={'password_hash', 'roles_str'}),
+            roles=user.roles
+        ))
 
     return users
 
@@ -152,8 +166,11 @@ async def logout(
 @router.get("/me")
 async def read_users_me(
         current_user: Annotated[User, Depends(get_current_user)]
-) -> User:
-    return current_user
+) -> UserResponse:
+    return UserResponse(
+        **current_user.model_dump(exclude={'password_hash', 'roles_str'}),
+        roles=current_user.roles
+    )
 
 
 @router.put("/me")
@@ -162,7 +179,7 @@ async def update_users_me(
         current_user: Annotated[User, Depends(get_current_user)],
         email: Annotated[str, Depends(get_verified_email)],
         name: Annotated[str, Body()]
-) -> User:
+) -> UserResponse:
     current_user.email = email
     current_user.name = name
     db_session.add(current_user)
@@ -170,7 +187,10 @@ async def update_users_me(
     UserFiltersCache.clear()
 
     db_session.refresh(current_user)
-    return current_user
+    return UserResponse(
+        **current_user.model_dump(exclude={'password_hash', 'roles_str'}),
+        roles=current_user.roles
+    )
 
 
 @router.put("/me/password")
@@ -179,7 +199,7 @@ async def update_my_password(
         current_user: Annotated[User, Depends(get_current_user)],
         old_password: Annotated[str, Body()],
         new_password: Annotated[str, Depends(get_validated_password)],
-) -> User:
+) -> UserResponse:
     if not verify_password(old_password, current_user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid password")
     current_user.password_hash = hash_password(new_password)
@@ -187,7 +207,10 @@ async def update_my_password(
     db_session.commit()
 
     db_session.refresh(current_user)
-    return current_user
+    return UserResponse(
+        **current_user.model_dump(exclude={'password_hash', 'roles_str'}),
+        roles=current_user.roles
+    )
 
 
 @router.put("/{user_id}")
@@ -196,11 +219,10 @@ async def update_user_role(
         user_id: UUID,
         include: Annotated[set[Role], Body()],
         exclude: Annotated[set[Role], Body()],
-        current_user_roles: Annotated[
-            set[Role],
-            Depends(authorize(Role.ADMIN, Role.DEAN))
-        ],
-):
+        current_user_roles: Annotated[set[Role], Depends(
+            authorize(Role.ADMIN, Role.DEAN)
+        )],
+) -> UserResponse:
     permission_error = HTTPException(
         status_code=403,
         detail="Not enough permissions"
@@ -230,4 +252,7 @@ async def update_user_role(
     UserFiltersCache.clear()
 
     db_session.refresh(target_user)
-    return target_user
+    return UserResponse(
+        **target_user.model_dump(exclude={'password_hash', 'roles_str'}),
+        roles=target_user.roles
+    )

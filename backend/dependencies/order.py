@@ -1,4 +1,4 @@
-from datetime import time, date
+from datetime import time, date, datetime, timezone
 from typing import Annotated
 from uuid import UUID
 
@@ -45,11 +45,30 @@ def get_valid_day(
     return day
 
 
-def get_verified_room_id(
+def get_valid_day_and_time(
+    day: Annotated[date, Depends(get_valid_day)],
+    time_range: Annotated[tuple[time, time], Depends(get_valid_time_range)]
+) -> tuple[date, time, time]:
+    start_time, end_time = time_range
+    now = datetime.now()
+    print(now)
+    if day == now.date() and start_time < now.time():
+        raise HTTPException(status_code=400, detail="Time must be in the future")
+    return day, start_time, end_time
+
+
+def get_room_by_id(
     db_session: Annotated[Session, Depends(get_db_session)],
-    room_id: Annotated[UUID, Body()]
+    room_id: UUID
 ):
     room = db_session.get(Room, room_id)
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
     return room
+
+
+def get_room_by_id_in_body(
+    db_session: Annotated[Session, Depends(get_db_session)],
+    room_id: Annotated[UUID, Body()]
+):
+    return get_room_by_id(db_session, room_id)
