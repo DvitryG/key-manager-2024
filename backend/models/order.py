@@ -6,6 +6,8 @@ from uuid import UUID, uuid4
 from enum import Enum
 
 from backend.models.common import Pagination
+from backend.models.room import Room
+from backend.models.user import User
 
 
 class OrderStatus(str, Enum):
@@ -16,7 +18,7 @@ class OrderStatus(str, Enum):
 
 class Order(SQLModel, table=True):
     order_id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(index=True)
+    user_id: UUID = Field(index=True, foreign_key="userindb.user_id")
     room_id: UUID = Field(index=True, foreign_key="room.room_id")
     status: OrderStatus = Field(default=OrderStatus.OPENED, index=True)
 
@@ -41,6 +43,18 @@ class CreateCyclicOrderRequest(CreateOrderRequest):
     week_day: int
 
 
+class OrderResponse(SQLModel):
+    order_id: UUID
+    user: User
+    room: Room
+    status: OrderStatus
+    cyclic: bool
+    day: date | None
+    week_day: int | None
+    start_time: time
+    end_time: time
+
+
 class OrdersPageResponse(SQLModel):
-    orders: Sequence[Order]
+    orders: Sequence[OrderResponse]
     pagination: Pagination

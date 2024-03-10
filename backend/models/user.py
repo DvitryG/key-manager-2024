@@ -53,6 +53,13 @@ class LoginRequest(SQLModel):
     password: str
 
 
+class UserResponse(SQLModel):
+    user_id: UUID
+    name: str
+    email: str
+    roles: set[Role]
+
+
 class UsersPageResponse(SQLModel):
-    users: Sequence[User]
+    users: Sequence[UserResponse]
     pagination: Pagination
