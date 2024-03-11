@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import "../index.css";
 import "../App.css";
 import Container from 'react-bootstrap/Container';
@@ -9,6 +9,26 @@ import '../Styles/index.css'
 
 
 const Header = () => {
+    const [auth, setAuth] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token != null){
+            setAuth(true);
+        }
+    }, []);
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token != null){
+            setAuth(true);
+        }
+    }, [auth]);
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token == null){
+            setAuth(false);
+        }
+    }, [auth]);
     return (
       
           <Navbar bg="navbar" data-bs-theme="dark">
@@ -21,15 +41,22 @@ const Header = () => {
                 <Link to="/list" className='me-2'>Пользователи</Link>
                 <Link to="/office" className='me-2'>Кабинеты</Link>
                 <Link to="/keys" className='me-2'>Выданные ключи</Link>
-                <Link to="/profile" className='me-2'>Профиль</Link>
-                <Link to="/users" className='me-2'>редактировать пользователя</Link>
-                <Link to="/confirm_return" className='me-2'>выданные ключи</Link>
+
+                <Link to="/confirm_return" className='me-2'>Выданные ключи</Link>
               </Nav>
               <Nav>
               <Nav>
-               <Link to="/login" className='me-2'>Войти</Link>
-               <Link to="/registration" className='me-2'>Регистрация</Link> 
-               <Link to="/logout" className='me-2'>выход из системы</Link>
+
+
+                  {auth ? (<>
+                      <Link to="/profile" className='me-2'>Профиль</Link>
+                      <Link to="/users" className='me-2'>Редактировать пользователя</Link>
+                      <Link to="/logout" className='me-2'>выход из системы</Link>
+                  </>) : (<>
+                      <Link to="/login" className='me-2'>Войти</Link>
+                      <Link to="/registration" className='me-2'>Регистрация</Link>
+                  </>)}
+
                </Nav>
               </Nav>
             </Container>

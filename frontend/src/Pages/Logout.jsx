@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import {url} from "../url.js";
 function Logout() {
   const navigate = useNavigate();
 
@@ -9,13 +9,13 @@ function Logout() {
     const logout = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken');
-        await axios.delete('http://0.0.0.0:5000/users/logout', {
+        await axios.delete(`${url}/users/logout`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'accept': 'application/json'
           }
         });
-        // Logout successful, navigate to login page
+        localStorage.removeItem('accessToken');
         navigate('/login');
       } catch (error) {
         console.error('Error logging out:', error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import {url} from "../url.js";
 function ConfirmReturnRequests() {
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState('');
@@ -9,7 +9,7 @@ function ConfirmReturnRequests() {
     const fetchRequests = async () => {
       try {
         const accessToken = localStorage.getItem('accessToken');
-        const response = await axios.get('http://0.0.0.0:5000/confirm_return_requests/?page=0&page_size=10', {
+        const response = await axios.get(`${url}/confirm_return_requests/?page=0&page_size=10`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'accept': 'application/json'
@@ -28,7 +28,7 @@ function ConfirmReturnRequests() {
   const handleConfirm = async (roomId) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      await axios.delete(`http://0.0.0.0:5000/confirm_return_requests/${roomId}`, {}, {
+      await axios.delete(`${url}/confirm_return_requests/${roomId}`, {}, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'accept': 'application/json'
