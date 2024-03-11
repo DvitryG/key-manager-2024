@@ -3,7 +3,6 @@ import RequestForm from '../Components/RequestForm';
 import Card from '../Components/Card';
 import axios from "axios";
 import {url} from "../url";
-import UserList from "../Components/UserList";
 
 
 
@@ -49,7 +48,7 @@ const RequestPage = () => {
               ) : (
                   <div>
                       {orders.map(order => (
-                          <Card fullName={order.user.name} room={order.room.name} date={order.day} status={order.status}/>
+                          <Card key={order.order_id} fullName={order.user.name} room={order.room.name} date={order.day} status={order.status} order_id={order.order_id}/>
                       ))}
                   </div>
               )}

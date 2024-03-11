@@ -16,7 +16,7 @@ function ListOffices({ id, name, available }) {
 
   const activateOffice = async () => {
     try {
-      await axios.post(`http://0.0.0.0:5000/rooms/${id}?availability=true`);
+      await axios.post(`${url}/rooms/${id}?availability=true`);
       // Handle success or update UI as needed
     } catch (error) {
       console.error('Error activating office:', error);
@@ -26,7 +26,7 @@ function ListOffices({ id, name, available }) {
 
   const deleteOffice = async () => {
     try {
-      await axios.delete(`http://0.0.0.0:5000/rooms/${id}`);
+      await axios.delete(`${url}/rooms/${id}`);
       // Handle success or update UI as needed
     } catch (error) {
       console.error('Error deleting office:', error);
