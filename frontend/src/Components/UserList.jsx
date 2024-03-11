@@ -8,7 +8,7 @@ const UserList = ({ fullName, email, status, user_id }) => {
 
     const handleClick = () => {
         // Redirect to the /users route and pass user details as URL parameters
-        navigate(`/users?user_id=${user_id}&fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&roles_str=${encodeURIComponent(status)}`);
+        navigate(`/users?user_id=${user_id}`);
     };
 
     return (

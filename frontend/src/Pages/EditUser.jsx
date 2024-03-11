@@ -13,15 +13,26 @@ function Editing({ user_id }) {
         if (checked) {
             setRoles(prevState => ({
                 ...prevState,
-                include: [...prevState.include, name],
+                include: Array.from(new Set([...prevState.include, name])),
+                exclude: prevState.exclude.filter(item => item !== name),
             }));
-        } else {
+        } else if (!checked && roles.include.includes(name)) {
             setRoles(prevState => ({
                 ...prevState,
-                exclude: [...prevState.exclude, name],
+                include: prevState.include.filter(item => item !== name),
+                exclude: Array.from(new Set([...prevState.exclude, name])),
+            }));
+        } else if (!checked && roles.exclude.includes(name)) {
+            setRoles(prevState => ({
+                ...prevState,
+                include: Array.from(new Set([...prevState.include, name])),
+                exclude: prevState.exclude.filter(item => item !== name),
             }));
         }
     };
+    
+    
+        
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -61,7 +72,7 @@ function Editing({ user_id }) {
                             Админ
                         </label>
                     </div>
-                    <input type="submit" value="Изменить" className="btn btn-primary mt-3" />
+                    <input type="submit" value="Изменить" onClick={handleCheckboxChange} className="btn btn-primary mt-3" />
                 </form>
             </div>
         </div>

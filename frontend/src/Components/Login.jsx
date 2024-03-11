@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import Container from "react-bootstrap/Container";
+import { useNavigate } from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import "../Styles/index.css";
@@ -14,7 +15,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
+ 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
@@ -39,15 +41,11 @@ const Login = () => {
           },
         }
       );
-      // Login successful
       console.log("Login successful:", response.data);
-      // Assuming the response contains an access token
       const { access_token } = response.data;
-      // Store the access token in local storage or state for further use
       localStorage.setItem("accessToken", access_token);
-      // Optionally, you can redirect the user to another page after successful login
+      navigate(`/profile`);
     } catch (error) {
-      // Handle login failure
       console.error("Login error:", error);
       setError("Invalid email or password. Please try again.");
     }

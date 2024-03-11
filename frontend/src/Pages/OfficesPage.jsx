@@ -47,7 +47,7 @@ function OfficesPage() {
                     <p>{error}</p>
                 ) : (
                     offices.map(office => (
-                        <ListOffices key={office.room_id} name={office.name} id={office.room_id} available={!office.blocked} />
+                        <ListOffices key={office.room_id} name={office.name} room_id={office.room_id} blocked={office.blocked} />
                     ))
                 )}
             </div>
