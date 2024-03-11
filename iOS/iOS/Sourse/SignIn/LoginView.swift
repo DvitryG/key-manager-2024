@@ -8,6 +8,7 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject private var coordinator: Coordinator
     @StateObject private var viewModel = LoginViewModel()
+    @StateObject private var authManager = AuthManager()
 
     var body: some View {
         List {
@@ -21,11 +22,11 @@ struct LoginView: View {
 
             Button("Login") {
                 viewModel.loginUser { result in
-                    // Выводим в консоль результат входа
                     switch result {
                     case .success(let response):
                         print("Login successful. Access Token: \(response.access_token)")
-                        // Переходим на .main после успешного входа
+                        self.authManager.login()
+                        print("\n\nauthManager.login()\n\n")
                         coordinator.push(.main)
                     case .failure(let error):
                         print("Login failed. Error: \(error.localizedDescription)")

@@ -10,6 +10,7 @@ struct RegistrationView: View {
 
     @EnvironmentObject private var coordinator: Coordinator
     @StateObject private var viewModel = RegistrationViewModel()
+    @StateObject private var authManager = AuthManager()
 
     var body: some View {
         List {
@@ -31,12 +32,10 @@ struct RegistrationView: View {
                 viewModel.registerUser { result in
                     handleRegistrationResult(result)
                 }
+                self.authManager.login()
+                print("\n\nauthManager.register()\n\n")
             }
             .padding()
-
-            Button("Войти") {
-                coordinator.push(.signIn)
-            }
         }
         .navigationTitle("SignUp")
     }

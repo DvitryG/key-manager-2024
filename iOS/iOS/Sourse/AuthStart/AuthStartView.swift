@@ -5,36 +5,21 @@
 
 import SwiftUI
 
-
-
-
 struct AuthStartView: View {
-    @ObservedObject var viewModel = AuthStartViewModel()
-    @EnvironmentObject var coordinator: Coordinator
-
+    @EnvironmentObject private var coordinator: Coordinator
+    
     var body: some View {
         VStack {
             Text("Добро пожаловать!")
-
-            if !viewModel.isLoggedIn {
-                Button("Зарегистрироваться") {
-                    coordinator.push(.registration)
-                }
-                .padding()
-
-                Button("Войти") {
-                    coordinator.push(.signIn)
-                }
-                .padding()
+            Button("Зарегистрироваться") {
+                coordinator.push(.registration)
             }
-
-           
-            if viewModel.isLoggedIn {
-                Button("Продолжить") {
-                    coordinator.push(.main)
-                }
-                .padding()
+            .padding()
+            
+            Button("Войти") {
+                coordinator.push(.signIn)
             }
+            .padding()
         }
     }
 }
