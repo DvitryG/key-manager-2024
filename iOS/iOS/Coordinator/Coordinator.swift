@@ -29,12 +29,14 @@ class Coordinator: ObservableObject {
     @ViewBuilder
     func build(page: Page) -> some View {
         switch page {
+        case .authStart:
+            AuthStartView()
         case .main:
             MainView()
         case .signIn:
-            SignInView()
-        case .signUp:
-            SignUpView()
+            LoginView()
+        case .registration:
+            RegistrationView()
         case .createOrder:
             CreateOrderView()
         }

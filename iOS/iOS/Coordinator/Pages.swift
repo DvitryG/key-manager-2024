@@ -6,7 +6,7 @@
 import SwiftUI
 
 enum Page: String, Identifiable {
-    case main, signIn, signUp, createOrder
+    case authStart, main, signIn, registration, createOrder
     
     var id: String {
         self.rawValue

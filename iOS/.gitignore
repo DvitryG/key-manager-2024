@@ -40,3 +40,8 @@ CHANGELOG
 Podfile
 Gemfile
 Fastlane/
+
+# Backend
+Vent
+.idea
+backend/
