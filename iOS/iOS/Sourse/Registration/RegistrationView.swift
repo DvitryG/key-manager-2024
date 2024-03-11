@@ -46,7 +46,7 @@ struct RegistrationView: View {
             print("Registration successful. Access Token: \(response.access_token)")
             
         case .failure(let error):
-            print("Registration failed. Error: \(error.localizedDescription)")
+            print("Registration failed. Error: \(error)")
         }
     }
 }

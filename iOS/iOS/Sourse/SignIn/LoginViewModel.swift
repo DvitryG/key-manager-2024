@@ -21,7 +21,7 @@ class LoginViewModel: ObservableObject {
                 print("Received login response: \(response)")
                 completion(.success(response))
             case .failure(let error):
-                print("Login failed. Error: \(error.localizedDescription)")
+                print("Login failed. Error: \(error)")
                 completion(.failure(error))
             }
         }

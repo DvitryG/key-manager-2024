@@ -7,7 +7,7 @@ struct RegistrationModel {
     let username: String
     let email: String
     let password: String
-    let repeatPassword: String
+    let repeat_password: String
 }
 
 

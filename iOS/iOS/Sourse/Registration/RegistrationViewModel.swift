@@ -24,7 +24,7 @@ class RegistrationViewModel: ObservableObject {
             return
         }
 
-        let registrationModel = RegistrationModel(username: username, email: email, password: password, repeatPassword: repeatPassword)
+        let registrationModel = RegistrationModel(username: username, email: email, password: password, repeat_password: repeatPassword)
 
         networkManager.registerUser(model: registrationModel, completion: completion)
     }

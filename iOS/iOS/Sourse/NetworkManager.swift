@@ -11,12 +11,14 @@ class NetworkManager {
     private init() {}
     
     func registerUser(model: RegistrationModel, completion: @escaping (Result<RegistrationResponse, Error>) -> Void) {
-        let url = "http://0.0.0.0:5500/users/register"
+//        let url = "http://0.0.0.0:5500/users/register"
+        let url = "http://185.179.189.235/users/register"
+        
         let parameters: [String: Any] = [
             "name": model.username,
             "password": model.password,
             "email": model.email,
-            "repeat_password": model.repeatPassword
+            "repeat_password": model.repeat_password
         ]
         
         AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
@@ -32,8 +34,9 @@ class NetworkManager {
     }
     
     func loginUser(model: LoginModel, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
-        let url = "http://0.0.0.0:5500/users/login"
-        
+//        let url = "http://0.0.0.0:5500/users/login"
+        let url = "http://185.179.189.235/users/login"
+
         let parameters: [String: Any] = [
             "email": model.email,
             "password": model.password
@@ -43,7 +46,7 @@ class NetworkManager {
             .validate()
             .responseDecodable(of: LoginResponse.self) { response in
                 debugPrint(response)
-
+                
                 switch response.result {
                 case .success(let loginResponse):
                     completion(.success(loginResponse))
