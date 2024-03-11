@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import UserList from '../Components/UserList';
 
 function UserListPage (){
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -46,7 +48,8 @@ function UserListPage (){
                                 key={user.user_id}
                                 fullName={user.name}
                                 email={user.email}
-                                status={user.roles_str}
+                                roles_str={user.roles_str}
+                                user_id={user.user_id}
                             />
                         ))}
                     </div>

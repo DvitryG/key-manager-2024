@@ -1,12 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import "../Styles/index.css";
 import '../Styles/button.css';
 
+const UserList = ({ fullName, email, status, user_id }) => {
+    const navigate = useNavigate();
 
-const UserList = ({ fullName, email, status }) => {
+    const handleClick = () => {
+        // Redirect to the /users route and pass user details as URL parameters
+        navigate(`/users?user_id=${user_id}&fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&roles_str=${encodeURIComponent(status)}`);
+    };
+
     return (
         <>
-        <div className='d-flex mb-2 line'>
+        <div className='d-flex mb-2 line' onClick={handleClick} style={{ cursor: 'pointer' }}>
             <div className='d-flex flex-column w-50'>
                 <div className='mb-2 fw-semibold'>{fullName} </div>
                 <div>{email}</div>
@@ -16,7 +23,6 @@ const UserList = ({ fullName, email, status }) => {
             </div>
         </div>
        </>
-        
     );
 };
 

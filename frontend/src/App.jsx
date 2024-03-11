@@ -11,6 +11,8 @@ import KeysPage  from './Pages/KeysPage';
 import UserListPage from './Pages/UserListPage';
 import OfficesPage from './Pages/OfficesPage';
 import EditUser from './Pages/EditUser';
+import NoAuth from './Pages/NoAuth';
+
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
         <Route path='/office' element={<OfficesPage />}/>
         <Route path='/profile' element={<ProfilePage/>}/>
         <Route path='/users' element={<EditUser/>}/>
+        <Route path='/noauth' element={<NoAuth/>}/>
+
 
      </Routes>
      </>
