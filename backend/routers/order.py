@@ -1,5 +1,5 @@
 from datetime import date, time
-from typing import Annotated
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from uuid import UUID
@@ -40,9 +40,7 @@ async def get_my_orders(
         user: Annotated[User, Depends(get_current_user)],
         day: date | None = None,
         room_id: UUID = None,
-        page: Annotated[int, Query(ge=0)] = 0,
-        page_size: Annotated[int, Query(ge=1, le=100)] = 10
-) -> OrdersPageResponse:
+) -> Sequence[OrderResponse]:
     update_orders_status(db_session, Order.user_id == user.user_id)
 
     order_filters = [
@@ -64,18 +62,7 @@ async def get_my_orders(
     result = db_session.exec(
         select(Order, UserInDB, Room)
         .where(*order_filters)
-        .offset(page * page_size).limit(page_size)
     ).all()
-
-    pages_count = await get_pages_count_from_cache(
-        lambda: db_session.query(Order, UserInDB, Room).where(*order_filters).count(),
-        OrderFiltersCache,
-        {
-            "day": day,
-            "room_id": str(room_id),
-            "page_size": page_size,
-        }
-    )
 
     orders = []
     for order, user, room in result:
@@ -85,14 +72,7 @@ async def get_my_orders(
             room=room,
         ))
 
-    return OrdersPageResponse(
-        orders=orders,
-        pagination=Pagination(
-            page_size=len(orders),
-            pages_count=pages_count,
-            current_page=page
-        )
-    )
+    return orders
 
 
 @router.get("/all", dependencies=[Depends(
