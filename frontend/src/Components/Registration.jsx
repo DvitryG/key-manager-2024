@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
+import { useNavigate } from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { Link } from "react-router-dom";
@@ -13,6 +14,9 @@ const Registration = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+  
 
   const handleFullNameChange = (event) => {
     setFullName(event.target.value);
@@ -52,14 +56,10 @@ const Registration = () => {
           },
         }
       );
-      // Registration successful
       console.log("Registration successful:", response.data);
-      // Assuming the response contains an access token
       const { access_token } = response.data;
-      // Store the access token in local storage or state for further use
       localStorage.setItem("accessToken", access_token);
-      // Optionally, you can redirect the user to another page after successful registration
-      // history.push("/dashboard");
+      navigate(`/profile`);
     } catch (error) {
       if (error.response && error.response.data && error.response.data.detail) {
         setError(error.response.data.detail);

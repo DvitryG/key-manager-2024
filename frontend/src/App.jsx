@@ -12,6 +12,8 @@ import UserListPage from './Pages/UserListPage';
 import OfficesPage from './Pages/OfficesPage';
 import EditUser from './Pages/EditUser';
 import NoAuth from './Pages/NoAuth';
+import Logout from './Pages/Logout';
+import ConfirmReturn from './Pages/ConfirmReturn'
 
 
 
@@ -32,6 +34,8 @@ function App() {
         <Route path='/profile' element={<ProfilePage/>}/>
         <Route path='/users' element={<EditUser/>}/>
         <Route path='/noauth' element={<NoAuth/>}/>
+        <Route path='/logout' element={<Logout/>}/>
+        <Route path='/confirm_return' element={<ConfirmReturn/>} />
 
 
      </Routes>

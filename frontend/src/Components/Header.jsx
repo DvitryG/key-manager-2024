@@ -6,7 +6,6 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
 import '../Styles/index.css'
-import EditUser from '../Pages/EditUser';
 
 
 const Header = () => {
@@ -24,11 +23,13 @@ const Header = () => {
                 <Link to="/keys" className='me-2'>Выданные ключи</Link>
                 <Link to="/profile" className='me-2'>Профиль</Link>
                 <Link to="/users" className='me-2'>редактировать пользователя</Link>
+                <Link to="/confirm_return" className='me-2'>выданные ключи</Link>
               </Nav>
               <Nav>
               <Nav>
                <Link to="/login" className='me-2'>Войти</Link>
                <Link to="/registration" className='me-2'>Регистрация</Link> 
+               <Link to="/logout" className='me-2'>выход из системы</Link>
                </Nav>
               </Nav>
             </Container>
