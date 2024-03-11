@@ -1,10 +1,11 @@
 import React from 'react';
 import axios from 'axios';
+import {url} from '../url.js';
 
 function ListOffices({ id, name, available }) {
   const deactivateOffice = async () => {
     try {
-      await axios.post(`  'http://0.0.0.0:5000/rooms/${id}?availability=false' \
+      await axios.post(`  ${url}'/rooms/${id}?availability=false' \
       `);
       // Handle success or update UI as needed
     } catch (error) {

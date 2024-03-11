@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import {url} from "../url.js";
 function Editing({ user_id }) {
     const [roles, setRoles] = useState({
         include: [],
@@ -26,7 +26,7 @@ function Editing({ user_id }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            await axios.put(`http://0.0.0.0:5000/users/${user_id}`, {
+            await axios.put(`${url}/users/${user_id}`, {
                 include: roles.include,
                 exclude: roles.exclude,
             });

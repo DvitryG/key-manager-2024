@@ -5,6 +5,7 @@ import Form from "react-bootstrap/Form";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "../Styles/styleYusuf.css";
+import {url} from "../url.js";
 
 const Registration = () => {
   const [fullName, setFullName] = useState("");
@@ -37,7 +38,7 @@ const Registration = () => {
     }
     try {
       const response = await axios.post(
-        "http://0.0.0.0:5000/users/register",
+        `${url}/users/register`,
         {
           name: fullName,
           repeat_password: confirmPassword,

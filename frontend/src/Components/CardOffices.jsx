@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import Input from './Input';
 import "../Styles/index.css";
 import '../Styles/button.css';
+import {url} from "../url.js";
 
 const CardOffices = () => {
 
@@ -13,7 +14,7 @@ const CardOffices = () => {
   const createRoom = async (event) => {
     try {
       const response = await axios.post(
-        "http://0.0.0.0:5000/rooms/",
+        `${url}/rooms/`,
         {
           name: name,
         },

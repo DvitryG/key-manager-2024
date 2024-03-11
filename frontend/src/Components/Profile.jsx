@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import {url} from "../url.js";
 import "../Styles/styleYusuf.css";
 
 const Profile = () => {
@@ -14,7 +14,7 @@ const Profile = () => {
         const fetchData = async () => {
             try {
                 const accessToken = localStorage.getItem('accessToken');
-                const response = await axios.get('http://0.0.0.0:5000/users/me', {
+                const response = await axios.get(`${url}/users/me`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'accept': 'application/json'
@@ -36,7 +36,7 @@ const Profile = () => {
         try {
             const accessToken = localStorage.getItem('accessToken');
             const response = await axios.put(
-                'http://0.0.0.0:5000/users/me',
+                `${url}/users/me`,
                 {
                     name: name,
                     email: email
@@ -68,7 +68,7 @@ const Profile = () => {
         try {
             const accessToken = localStorage.getItem('accessToken');
             const response = await axios.put(
-                'http://0.0.0.0:5000/users/me/password',
+                `${url}/users/me/password`,
                 {
                     old_password: old_password,
                     password: password 

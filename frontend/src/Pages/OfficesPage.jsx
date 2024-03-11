@@ -3,7 +3,7 @@ import axios from 'axios';
 import CardOffices from '../Components/CardOffices';
 import SearchOffices from '../Components/SearchOffices';
 import ListOffices from '../Components/ListOffices';
-
+import {url} from "../url.js";
 function OfficesPage() {
     const [offices, setOffices] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ function OfficesPage() {
         const fetchOffices = async () => {
             try {
                 const accessToken = localStorage.getItem('accessToken');
-                const response = await axios.get('http://0.0.0.0:5000/rooms/?page=0&page_size=10', {
+                const response = await axios.get(`${url}/rooms/?page=0&page_size=10`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'accept': 'application/json'

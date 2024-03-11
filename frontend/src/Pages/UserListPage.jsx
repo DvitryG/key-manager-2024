@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import UserList from '../Components/UserList';
+import {url} from "../url.js";
 
 function UserListPage (){
     const [users, setUsers] = useState([]);
@@ -13,7 +14,7 @@ function UserListPage (){
         const fetchUsers = async () => {
             try {
                 const accessToken = localStorage.getItem('accessToken');
-                const response = await axios.get('http://0.0.0.0:5000/users/?page=0&page_size=10', {
+                const response = await axios.get(`${url}/users/?page=0&page_size=10`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'accept': 'application/json'
