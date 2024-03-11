@@ -1,42 +1,39 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import RequestForm from '../Components/RequestForm';
 import Card from '../Components/Card';
+import axios from "axios";
+import {url} from "../url";
+import UserList from "../Components/UserList";
 
-const data = [
-    {
-        "id": 1,
-        "name": "Имя",
-        'date': "8:00-10:00",
-        "status": 1,
-        "room": 250,
-    },
-    {
-        "id": 2,
-        "name": "Имя Фамилия ",
-        'date': "18:00-20:00",
-        "status": 2,
-        "room": 201,
-    },
-    {
-        "id": 1,
-        "name": "Фио",
-        'date': "12:00-14:00",
-        "status": 2,
-        "room": 202,
-    },
-    {
-        "id": 1,
-        "name": "Name",
-        'date': "8:00-10:00",
-        "status": 0,
-        "room": 400,
-    }
-];
-const renderRequests = data.map((request)=>
-    <Card fullName={request.name} room={request.room} date={request.date} status={request.status}/>
-);
+
 
 const RequestPage = () => {
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                const response = await axios.get(`${url}/orders/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'accept': 'application/json'
+                    }
+                });
+                setOrders(response.data.orders);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                setError('Error fetching users. Please try again.');
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
     return (
         <div>
             <div className="request-header p-4 ps-5">
@@ -44,7 +41,18 @@ const RequestPage = () => {
             </div>
           <RequestForm />
           <div className="container d-flex justify-content-center flex-column w-75">
-            {renderRequests}
+
+              {loading ? (
+                  <p>Loading...</p>
+              ) : error ? (
+                  <p>{error}</p>
+              ) : (
+                  <div>
+                      {orders.map(order => (
+                          <Card fullName={order.user.name} room={order.room.name} date={order.day} status={order.status}/>
+                      ))}
+                  </div>
+              )}
           </div>
      
         </div>
